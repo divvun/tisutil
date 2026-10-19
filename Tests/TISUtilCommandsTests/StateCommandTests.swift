@@ -55,7 +55,16 @@ private func parse(_ arguments: [String]) throws -> any StateCommand {
     #expect(sources.changeRequests.map(\.change) == [.enable, .select])
 }
 
-// [spec:tis:req:mutate.verify/test]
+// [spec:tis:req:mutate.verify+1/test]
+@Test func timeoutDefaultsToSixtySeconds() throws {
+    #expect(try parse(["enable", layoutID]).waiting.timeout == 60)
+    #expect(try parse(["select", "--timeout", "5", layoutID]).waiting.timeout == 5)
+    #expect(throws: (any Error).self) {
+        try TISUtil.parseAsRoot(["enable", "--timeout", "-1", layoutID])
+    }
+}
+
+// [spec:tis:req:mutate.verify+1/test]
 @Test @MainActor func unappliedChangeExitsWithFailure() throws {
     let sources = fixture()
     sources.appliesChanges = false

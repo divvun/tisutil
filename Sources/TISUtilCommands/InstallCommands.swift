@@ -27,6 +27,7 @@ struct Register: InputSourceCommand {
     @OptionGroup var output: OutputOptions
     @OptionGroup var session: SessionOptions
     @OptionGroup var activation: ActivationOptions
+    @OptionGroup var waiting: WaitOptions
 
     @Argument(help: "A .keylayout file, a keyboard layout bundle or an input method app.")
     var path: String
@@ -37,7 +38,8 @@ struct Register: InputSourceCommand {
         let sources = try provider.activate(
             provider.register(item),
             enable: activation.enable,
-            select: activation.select
+            select: activation.select,
+            timeout: waiting.timeout
         )
         return CommandOutput(stdout: try output.render(sources))
     }
@@ -60,6 +62,7 @@ struct Install: InputSourceCommand {
     @OptionGroup var output: OutputOptions
     @OptionGroup var session: SessionOptions
     @OptionGroup var activation: ActivationOptions
+    @OptionGroup var waiting: WaitOptions
 
     @Flag(help: "Install for every user under /Library rather than under ~/Library.")
     var system = false
@@ -88,7 +91,8 @@ struct Install: InputSourceCommand {
         let sources = try provider.activate(
             provider.register(placed),
             enable: activation.enable,
-            select: activation.select
+            select: activation.select,
+            timeout: waiting.timeout
         )
         return CommandOutput(stdout: try output.render(sources))
     }
@@ -142,5 +146,6 @@ struct Install: InputSourceCommand {
 
     func registerArguments(for placed: InstallableItem) -> [String] {
         ["register", placed.url.path] + (output.json ? ["--json"] : []) + activation.arguments
+            + ["--timeout", String(waiting.timeout)]
     }
 }

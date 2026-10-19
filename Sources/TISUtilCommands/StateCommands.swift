@@ -1,9 +1,24 @@
 import ArgumentParser
 import TISKit
 
+struct WaitOptions: ParsableArguments {
+    @Option(
+        help: """
+            Seconds to wait for a change to take effect, including time for the user to \
+            answer a macOS prompt.
+            """
+    )
+    var timeout = InputSourceChange.defaultTimeout
+
+    func validate() throws {
+        guard timeout >= 0 else { throw ValidationError("--timeout cannot be negative.") }
+    }
+}
+
 protocol StateCommand: InputSourceCommand {
     static var change: InputSourceChange { get }
     var output: OutputOptions { get }
+    var waiting: WaitOptions { get }
     var id: String { get }
     var enablingFirst: Bool { get }
 }
@@ -11,10 +26,15 @@ protocol StateCommand: InputSourceCommand {
 extension StateCommand {
     var enablingFirst: Bool { false }
 
-    // [spec:tis:req:mutate.verify]
+    // [spec:tis:req:mutate.verify+1]
     @MainActor
     func execute(provider: some InputSourceProvider) throws -> CommandOutput {
-        let source = try provider.apply(Self.change, to: id, enablingFirst: enablingFirst)
+        let source = try provider.apply(
+            Self.change,
+            to: id,
+            enablingFirst: enablingFirst,
+            timeout: waiting.timeout
+        )
         return CommandOutput(stdout: try output.render(source))
     }
 }
@@ -30,6 +50,7 @@ struct Enable: StateCommand {
 
     @OptionGroup var output: OutputOptions
     @OptionGroup var session: SessionOptions
+    @OptionGroup var waiting: WaitOptions
 
     @Argument(help: idHelp)
     var id: String
@@ -44,6 +65,7 @@ struct Disable: StateCommand {
 
     @OptionGroup var output: OutputOptions
     @OptionGroup var session: SessionOptions
+    @OptionGroup var waiting: WaitOptions
 
     @Argument(help: idHelp)
     var id: String
@@ -58,6 +80,7 @@ struct Select: StateCommand {
 
     @OptionGroup var output: OutputOptions
     @OptionGroup var session: SessionOptions
+    @OptionGroup var waiting: WaitOptions
 
     @Flag(name: .customLong("enable"), help: "Enable the source first if it is not enabled.")
     var enablingFirst = false
@@ -75,6 +98,7 @@ struct Deselect: StateCommand {
 
     @OptionGroup var output: OutputOptions
     @OptionGroup var session: SessionOptions
+    @OptionGroup var waiting: WaitOptions
 
     @Argument(help: idHelp)
     var id: String

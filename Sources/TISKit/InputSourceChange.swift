@@ -4,6 +4,9 @@ public enum InputSourceChange: String, Sendable, CaseIterable {
     case select
     case deselect
 
+    public static let defaultTimeout = 60.0
+    static let pollInterval = 0.25
+
     public var resultingState: String {
         switch self {
         case .enable: "enabled"
@@ -24,15 +27,16 @@ public enum InputSourceChange: String, Sendable, CaseIterable {
 }
 
 extension InputSourceProvider {
-    /// Applies `change` to the source with `id` and returns the source as TIS
-    /// reports it afterwards.
+    /// Applies `change` to the source with `id`, waits up to `timeout` seconds
+    /// for it to take effect, and returns the source as TIS reports it then.
     // [spec:tis:req:mutate.enable-disable]
     // [spec:tis:req:mutate.select]
-    // [spec:tis:req:mutate.verify]
+    // [spec:tis:req:mutate.verify+1]
     public func apply(
         _ change: InputSourceChange,
         to id: String,
-        enablingFirst: Bool = false
+        enablingFirst: Bool = false,
+        timeout: Double = InputSourceChange.defaultTimeout
     ) throws -> InputSource {
         let before = try source(id: id)
         if change == .select || change == .deselect, before.isSelectCapable != true {
@@ -43,13 +47,20 @@ extension InputSourceProvider {
         }
         if change == .select, before.isEnabled != true {
             guard enablingFirst else { throw TISError.notEnabled(id: id) }
-            _ = try apply(.enable, to: id)
+            _ = try apply(.enable, to: id, timeout: timeout)
         }
         try requestChange(change, id: id)
-        let after = try source(id: before.id ?? id)
-        guard change.isSatisfied(by: after) else {
-            throw TISError.notApplied(change, id: id)
+        var waited = 0.0
+        while true {
+            let after = try source(id: before.id ?? id)
+            if change.isSatisfied(by: after) {
+                return after
+            }
+            guard waited < timeout else {
+                throw TISError.notApplied(change, id: id)
+            }
+            pause(seconds: InputSourceChange.pollInterval)
+            waited += InputSourceChange.pollInterval
         }
-        return after
     }
 }

@@ -19,6 +19,9 @@ public protocol InputSourceProvider {
     func requestChange(_ change: InputSourceChange, id: String) throws
     func register(url: URL) throws
     var layoutIDAliases: LayoutIDAliases { get }
+    /// Lets TIS deliver state changes, including the user's answer to a
+    /// macOS prompt, while a change is being waited for.
+    func pause(seconds: Double)
 }
 
 // [spec:tis:req:kit.list]

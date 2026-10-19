@@ -15,10 +15,15 @@ Commands that change which input sources are enabled or selected.
 > source is not enabled, `select` MUST fail unless `--enable` is given, in
 > which case it MUST enable the source first.
 
-> [spec:tis:req:mutate.verify]
-> TIS can return `noErr` without applying a change. After every enable,
-> disable, select or deselect, `tisutil` MUST read the source again and MUST
-> exit with code `1` if its state does not match the request.
+> [spec:tis:req:mutate.verify+1]
+> TIS can return `noErr` before a change takes effect, or without making it
+> at all. For a third-party input source, macOS asks the user to allow an
+> enable and applies it only once they do. After every enable, disable,
+> select or deselect, `tisutil` MUST read the source again until its state
+> matches the request, for up to 60 seconds or the number of seconds given
+> with `--timeout`. If the state still does not match, `tisutil` MUST exit
+> with code `1`. For an enable, the message MUST say that the user may have
+> denied or not answered the prompt.
 
 > [spec:tis:req:mutate.layout-override]
 > `tisutil override` MUST print the keyboard layout override of the current

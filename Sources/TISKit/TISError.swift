@@ -28,6 +28,8 @@ extension TISError: CustomStringConvertible {
             "\(id) cannot be selected or deselected"
         case .notEnabled(let id):
             "\(id) is not enabled"
+        case .notApplied(.enable, let id):
+            "\(id) is still not enabled; if macOS asked to allow it, the request was denied or not answered"
         case .notApplied(let change, let id):
             "TIS reported success, but \(id) is still not \(change.resultingState)"
         }

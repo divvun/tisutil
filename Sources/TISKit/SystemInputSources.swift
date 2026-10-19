@@ -70,6 +70,13 @@ public struct SystemInputSources: InputSourceProvider {
     // [spec:tis:req:kit.lookup+2]
     public var layoutIDAliases: LayoutIDAliases { .installed }
 
+    /// Runs the main run loop, not a plain sleep, so that the distributed
+    /// notifications TIS refreshes its state from are delivered.
+    // [spec:tis:req:mutate.verify+1]
+    public func pause(seconds: Double) {
+        RunLoop.main.run(until: Date().addingTimeInterval(seconds))
+    }
+
     /// Filtering `TISCreateInputSourceList` by `kTISPropertyInputSourceID`
     /// misses bundled layouts that TIS currently reports under their other ID,
     /// so this matches against the full list instead.

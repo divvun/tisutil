@@ -64,7 +64,8 @@ private let placed = InstallableItem(
     )
     #expect(
         command.registerArguments(for: placed) == [
-            "register", "/Library/Keyboard Layouts/sme.bundle", "--json", "--enable",
+            "register", "/Library/Keyboard Layouts/sme.bundle", "--json", "--enable", "--timeout",
+            "60.0",
         ]
     )
 }

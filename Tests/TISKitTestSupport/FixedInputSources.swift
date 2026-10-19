@@ -26,6 +26,11 @@ public final class FixedInputSources: InputSourceProvider {
     public var registrations: [URL: [InputSource]] = [:]
     public private(set) var registeredURLs: [URL] = []
     public var layoutIDAliases = LayoutIDAliases.none
+    /// How many pauses pass before a requested change takes effect, as when
+    /// macOS waits for the user to allow it.
+    public var pausesBeforeApplying = 0
+    public private(set) var pauses = 0
+    private var pendingChanges: [ChangeRequest] = []
 
     nonisolated public init(
         installed: [InputSource],
@@ -57,7 +62,26 @@ public final class FixedInputSources: InputSourceProvider {
 
     public func requestChange(_ change: InputSourceChange, id: String) throws {
         changeRequests.append(ChangeRequest(change, id))
-        guard appliesChanges, let index = installed.firstIndex(where: { $0.id == id }) else {
+        guard appliesChanges else { return }
+        if pauses < pausesBeforeApplying {
+            pendingChanges.append(ChangeRequest(change, id))
+        } else {
+            make(change, id: id)
+        }
+    }
+
+    public func pause(seconds: Double) {
+        pauses += 1
+        if pauses >= pausesBeforeApplying {
+            for request in pendingChanges {
+                make(request.change, id: request.id)
+            }
+            pendingChanges = []
+        }
+    }
+
+    private func make(_ change: InputSourceChange, id: String) {
+        guard let index = installed.firstIndex(where: { $0.id == id }) else {
             return
         }
         switch change {
