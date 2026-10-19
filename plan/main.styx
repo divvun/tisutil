@@ -62,7 +62,12 @@ children (
                 title "List with filters, current sources, lookup by ID"
                 priority 0
                 implements {
-                    swift ([spec:tis:req:kit.list] [spec:tis:req:kit.current] [spec:tis:req:kit.lookup])
+                    swift (
+                        [spec:tis:req:kit.list]
+                        [spec:tis:req:kit.current]
+                        [spec:tis:req:kit.lookup]
+                        [spec:tis:req:kit.main-thread]
+                    )
                 }
                 deps (kit.model)
                 log (

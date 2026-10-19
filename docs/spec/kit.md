@@ -52,3 +52,10 @@ types and typed errors. The CLI holds no TIS logic of its own.
 > Every TIS call that returns an `OSStatus` MUST turn a non-zero status into
 > a typed error. The error carries the status code and the name of the TIS
 > function that returned it. TISKit MUST NOT discard a failed status.
+
+## Threading
+
+> [spec:tis:req:kit.main-thread]
+> TIS aborts the process when it is called off the main thread. Every TISKit
+> API that calls TIS MUST be isolated to the main actor, so that a call from
+> another thread fails to compile instead of crashing at run time.

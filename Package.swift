@@ -21,7 +21,15 @@ let package = Package(
             ]
         ),
         .executableTarget(name: "tisutil", dependencies: ["TISUtilCommands"]),
-        .testTarget(name: "TISKitTests", dependencies: ["TISKit"]),
-        .testTarget(name: "TISUtilCommandsTests", dependencies: ["TISUtilCommands", "TISKit"]),
+        .target(
+            name: "TISKitTestSupport",
+            dependencies: ["TISKit"],
+            path: "Tests/TISKitTestSupport"
+        ),
+        .testTarget(name: "TISKitTests", dependencies: ["TISKit", "TISKitTestSupport"]),
+        .testTarget(
+            name: "TISUtilCommandsTests",
+            dependencies: ["TISUtilCommands", "TISKit", "TISKitTestSupport"]
+        ),
     ]
 )

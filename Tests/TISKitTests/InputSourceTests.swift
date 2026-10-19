@@ -60,7 +60,7 @@ private func snapshot(_ properties: [CFString: Any]) -> InputSource {
 }
 
 // [spec:tis:req:kit.property-snapshot/test]
-@Test func snapshotOfLiveSourceHasIdentity() throws {
+@Test @MainActor func snapshotOfLiveSourceHasIdentity() throws {
     let ref = try #require(TISCopyCurrentKeyboardInputSource()?.takeRetainedValue())
     let source = InputSource(ref)
 

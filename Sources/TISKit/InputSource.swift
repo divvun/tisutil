@@ -75,6 +75,8 @@ extension InputSource {
     }
 
     // [spec:tis:req:kit.property-snapshot]
+    // [spec:tis:req:kit.main-thread]
+    @MainActor
     init(_ source: TISInputSource) {
         self.init { key in
             guard let raw = TISGetInputSourceProperty(source, key) else { return nil }
