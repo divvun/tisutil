@@ -78,6 +78,14 @@ children (
             swift ([spec:tis:req:cli.output-modes] [spec:tis:req:cli.json-shape] [spec:tis:req:cli.exit-codes])
         }
         deps (kit.model)
+        log (
+            {
+                at 2026-10-19T11:56:43.416607Z
+                author "brendan@necessary.nu"
+                kind @status
+                text "Todo → Doing (nplan start)"
+            }
+        )
     }
 
     {

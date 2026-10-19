@@ -22,5 +22,6 @@ let package = Package(
         ),
         .executableTarget(name: "tisutil", dependencies: ["TisutilCommands"]),
         .testTarget(name: "TISKitTests", dependencies: ["TISKit"]),
+        .testTarget(name: "TisutilCommandsTests", dependencies: ["TisutilCommands", "TISKit"]),
     ]
 )
