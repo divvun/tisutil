@@ -9,15 +9,11 @@ private let system = SystemInputSources()
 @Test @MainActor func systemListReturnsEnabledSources() throws {
     let enabled = try system.list(includeAllInstalled: false)
     let installed = try system.list(includeAllInstalled: true)
-    let current = try system.current(.keyboard)
 
     #expect(!enabled.isEmpty)
     #expect(enabled.allSatisfy { $0.isEnabled == true })
     #expect(installed.count >= enabled.count)
-    #expect(
-        installed.contains { $0.id == current.id },
-        "current \(current.id ?? "nil") is not among the installed sources"
-    )
+    #expect(installed.contains { $0.isEnabled == false })
 }
 
 // [spec:tis:req:kit.current/test]
@@ -43,10 +39,10 @@ private let system = SystemInputSources()
 }
 
 // [spec:tis:req:kit.lookup/test]
-@Test @MainActor func systemLookupFindsTheCurrentSource() throws {
-    let current = try system.current(.keyboard)
-    let id = try #require(current.id)
-    #expect(try system.source(id: id).id == id)
+@Test @MainActor func systemLookupFindsInstalledSources() throws {
+    let installed = try system.list(includeAllInstalled: true)
+    let disabled = try #require(installed.first { $0.isEnabled == false && $0.id != nil })
+    #expect(try system.source(id: disabled.id!) == disabled)
     #expect(throws: TISError.notFound(id: "no.such.input-source")) {
         try system.source(id: "no.such.input-source")
     }

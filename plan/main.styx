@@ -133,6 +133,14 @@ children (
                     swift ([spec:tis:req:mutate.enable-disable] [spec:tis:req:mutate.select] [spec:tis:req:mutate.verify])
                 }
                 deps (kit.enumerate cli)
+                log (
+                    {
+                        at 2026-10-19T12:12:01.32594Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+                )
             }
 
             {
