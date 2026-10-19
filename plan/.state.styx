@@ -1,6 +1,6 @@
 schema_version 7
 
-last_sync_at 2026-10-19T12:20:16.138446Z
+last_sync_at 2026-10-19T12:23:13.121351Z
 
 rule_versions (
     {id cli.exit-codes, version 0}
@@ -50,6 +50,16 @@ impl_evidence (
         {id cli.exit-codes, version 0}
         {id cli.json-shape, version 0}
         {id cli.output-modes, version 0}
+    )}
+    {id install.register, covered_rules (
+        install.kind-detect
+        install.register
+    ), covered_claims (
+        {impl_name swift, rule install.kind-detect}
+        {impl_name swift, rule install.register}
+    ), rule_versions_seen (
+        {id install.kind-detect, version 0}
+        {id install.register, version 0}
     )}
     {id kit.enumerate, covered_rules (
         kit.current
@@ -122,12 +132,12 @@ impl_evidence (
         {id session.privilege, version 0}
         {id session.reexec, version 0}
     )}
-    {id install.register, covered_rules (
-        install.kind-detect
-        install.register
+    {id install.place, covered_rules (
+        install.enable
+        install.place
     ), covered_claims (
-        {impl_name swift, rule install.kind-detect}
-        {impl_name swift, rule install.register}
+        {impl_name swift, rule install.enable}
+        {impl_name swift, rule install.place}
     )}
 )
 

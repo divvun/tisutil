@@ -56,7 +56,8 @@ extension InstallError: DiagnosedError {
     var exitStatus: ExitStatus {
         switch self {
         case .unrecognisedItem: .usage
-        case .nothingRegistered: .failure
+        case .notPermitted: .noPermission
+        case .nothingRegistered, .copyFailed: .failure
         }
     }
 }

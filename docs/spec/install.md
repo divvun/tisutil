@@ -15,7 +15,7 @@ without a logout.
 > item's sources are present, and print their IDs. If none are present, it
 > MUST exit with code `1`.
 
-> [spec:tis:req:install.place]
+> [spec:tis:req:install.place+1]
 > `tisutil install <path>` MUST copy the item into the directory that matches
 > its kind: `Keyboard Layouts` for layouts, `Input Methods` for input
 > methods. The default is under `~/Library`; `--system` uses `/Library`. An
@@ -25,6 +25,9 @@ without a logout.
 >
 > When `tisutil` runs as root, `install` MUST copy as root, then register
 > and enable in the target user's session as described for re-execution.
+> If no user is logged in, `install --system` MUST still copy the item,
+> MUST report that it becomes available at the next login, and MUST exit
+> with code `0`, unless `--enable` or `--select` was given.
 
 > [spec:tis:req:install.enable]
 > `tisutil install --enable` MUST enable every source the item registered.

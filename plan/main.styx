@@ -221,6 +221,14 @@ children (
                     swift ([spec:tis:req:install.place] [spec:tis:req:install.enable])
                 }
                 deps (install.register mutate.state session.reexec)
+                log (
+                    {
+                        at 2026-10-19T12:24:23.268433Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+                )
             }
         )
     }

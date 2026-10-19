@@ -87,6 +87,15 @@ func reexecArguments(as user: UserAccount, executable: String, arguments: [Strin
 }
 
 // [spec:tis:req:session.reexec]
+func reexecIfNeeded(user: String?, in context: SessionContext) throws -> Int32? {
+    switch try route(user: user, in: context) {
+    case .here: nil
+    case .reexec(let target):
+        try reexec(as: target, arguments: Array(CommandLine.arguments.dropFirst()))
+    }
+}
+
+// [spec:tis:req:session.reexec]
 func reexec(as user: UserAccount, arguments: [String]) throws -> Int32 {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/bin/launchctl")

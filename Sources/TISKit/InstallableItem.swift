@@ -3,6 +3,8 @@ import Foundation
 public enum InstallError: Error, Equatable, Sendable {
     case unrecognisedItem(path: String)
     case nothingRegistered(path: String)
+    case notPermitted(path: String)
+    case copyFailed(path: String, reason: String)
 }
 
 extension InstallError: CustomStringConvertible {
@@ -12,6 +14,10 @@ extension InstallError: CustomStringConvertible {
             "\(path) is not a .keylayout file, a keyboard layout bundle or an input method"
         case .nothingRegistered(let path):
             "TIS registered \(path), but none of its input sources are installed"
+        case .notPermitted(let path):
+            "no permission to write \(path)"
+        case .copyFailed(let path, let reason):
+            "could not copy to \(path): \(reason)"
         }
     }
 }
@@ -89,6 +95,48 @@ public struct InstallableItem: Equatable, Sendable {
         return delegate.attributes["name"]
     }
 
+    public var directoryName: String {
+        switch kind {
+        case .inputMethod: "Input Methods"
+        case .keyboardLayoutFile, .keyboardLayoutBundle: "Keyboard Layouts"
+        }
+    }
+
+    /// Copies the item into the matching directory of `library` and returns
+    /// the copy. The copy is staged on the same volume and moved into place
+    /// with a rename, so TIS never sees a partly copied item.
+    // [spec:tis:req:install.place+1]
+    public func place(inLibrary library: URL) throws -> InstallableItem {
+        let fileManager = FileManager.default
+        let directory = library.appending(path: directoryName)
+        let destination = directory.appending(path: url.lastPathComponent)
+        do {
+            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+            let staging = try fileManager.url(
+                for: .itemReplacementDirectory,
+                in: .userDomainMask,
+                appropriateFor: directory,
+                create: true
+            )
+            defer { try? fileManager.removeItem(at: staging) }
+            let staged = staging.appending(path: url.lastPathComponent)
+            try fileManager.copyItem(at: url, to: staged)
+            if fileManager.fileExists(atPath: destination.path) {
+                _ = try fileManager.replaceItemAt(destination, withItemAt: staged)
+            } else {
+                try fileManager.moveItem(at: staged, to: destination)
+            }
+        } catch let error as CocoaError
+            where error.code == .fileWriteNoPermission || error.code == .fileReadNoPermission
+        {
+            throw InstallError.notPermitted(path: destination.path)
+        } catch {
+            throw InstallError.copyFailed(
+                path: destination.path, reason: error.localizedDescription)
+        }
+        return InstallableItem(url: destination, kind: kind)
+    }
+
     // [spec:tis:req:install.register]
     public func owns(_ source: InputSource) -> Bool {
         switch kind {
@@ -118,6 +166,27 @@ private final class RootElementReader: NSObject, XMLParserDelegate {
 }
 
 extension InputSourceProvider {
+    /// Enables every enable-capable source in `sources` and, with `select`,
+    /// selects the first select-capable one; returns the sources afterwards.
+    // [spec:tis:req:install.enable]
+    public func activate(_ sources: [InputSource], enable: Bool, select: Bool) throws
+        -> [InputSource]
+    {
+        var result = sources
+        if enable {
+            for (index, source) in result.enumerated() {
+                guard let id = source.id, source.isEnableCapable == true else { continue }
+                result[index] = try apply(.enable, to: id)
+            }
+        }
+        if select,
+            let index = result.firstIndex(where: { $0.isSelectCapable == true && $0.id != nil })
+        {
+            result[index] = try apply(.select, to: result[index].id!, enablingFirst: true)
+        }
+        return result
+    }
+
     /// Registers `item` and returns the installed sources it provides.
     // [spec:tis:req:install.register]
     public func register(_ item: InstallableItem) throws -> [InputSource] {
