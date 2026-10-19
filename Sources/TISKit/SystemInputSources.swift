@@ -49,4 +49,32 @@ public struct SystemInputSources: InputSourceProvider {
         }
         return InputSource(source)
     }
+
+    // [spec:tis:req:mutate.enable-disable]
+    // [spec:tis:req:mutate.select]
+    public func requestChange(_ change: InputSourceChange, id: String) throws {
+        let source = try reference(id: id)
+        switch change {
+        case .enable: try check(TISEnableInputSource(source), "TISEnableInputSource")
+        case .disable: try check(TISDisableInputSource(source), "TISDisableInputSource")
+        case .select: try check(TISSelectInputSource(source), "TISSelectInputSource")
+        case .deselect: try check(TISDeselectInputSource(source), "TISDeselectInputSource")
+        }
+    }
+
+    /// Filtering `TISCreateInputSourceList` by `kTISPropertyInputSourceID`
+    /// misses bundled layouts that TIS currently reports under their other ID,
+    /// so this matches against the full list instead.
+    private func reference(id: String) throws -> TISInputSource {
+        guard let list = TISCreateInputSourceList(nil, true)?.takeRetainedValue(),
+            let source = firstMatch(
+                list as! [TISInputSource],
+                id: id,
+                idOf: { property(of: $0, kTISPropertyInputSourceID) as? String }
+            )
+        else {
+            throw TISError.notFound(id: id)
+        }
+        return source
+    }
 }

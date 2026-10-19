@@ -35,7 +35,6 @@ rule_versions (
 
 assertions (
     {id kit.package, kind @complete, author "brendan@necessary.nu", at 2026-10-19T11:55:40.062771Z}
-    {id mutate.state, kind @doing, author "brendan@necessary.nu", at 2026-10-19T12:12:01.32594Z}
 )
 
 impl_evidence (
@@ -62,11 +61,6 @@ impl_evidence (
         {impl_name swift, rule kit.list}
         {impl_name swift, rule kit.lookup}
         {impl_name swift, rule kit.main-thread}
-    ), rule_versions_seen (
-        {id kit.current, version 0}
-        {id kit.list, version 0}
-        {id kit.lookup, version 0}
-        {id kit.main-thread, version 0}
     )}
     {id kit.model, covered_rules (
         kit.category-type
@@ -96,6 +90,15 @@ impl_evidence (
         {id query.current, version 0}
         {id query.list, version 0}
         {id query.show, version 0}
+    )}
+    {id mutate.state, covered_rules (
+        mutate.enable-disable
+        mutate.select
+        mutate.verify
+    ), covered_claims (
+        {impl_name swift, rule mutate.enable-disable}
+        {impl_name swift, rule mutate.select}
+        {impl_name swift, rule mutate.verify}
     )}
 )
 

@@ -7,6 +7,10 @@ public enum TISError: Error, Equatable, Sendable {
     case noResult(function: String)
     case notFound(id: String)
     case noSourceForLanguage(String)
+    case notSelectCapable(id: String)
+    case notEnabled(id: String)
+    /// TIS returned `noErr`, but reading the source back shows the change was not made.
+    case notApplied(InputSourceChange, id: String)
 }
 
 extension TISError: CustomStringConvertible {
@@ -20,6 +24,12 @@ extension TISError: CustomStringConvertible {
             "no input source has the ID \(id)"
         case .noSourceForLanguage(let language):
             "no input source is available for the language \(language)"
+        case .notSelectCapable(let id):
+            "\(id) cannot be selected or deselected"
+        case .notEnabled(let id):
+            "\(id) is not enabled"
+        case .notApplied(let change, let id):
+            "TIS reported success, but \(id) is still not \(change.resultingState)"
         }
     }
 }

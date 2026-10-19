@@ -78,9 +78,12 @@ extension InputSource {
     // [spec:tis:req:kit.main-thread]
     @MainActor
     init(_ source: TISInputSource) {
-        self.init { key in
-            guard let raw = TISGetInputSourceProperty(source, key) else { return nil }
-            return Unmanaged<AnyObject>.fromOpaque(raw).takeUnretainedValue()
-        }
+        self.init { key in property(of: source, key) }
     }
+}
+
+@MainActor
+func property(of source: TISInputSource, _ key: CFString) -> AnyObject? {
+    guard let raw = TISGetInputSourceProperty(source, key) else { return nil }
+    return Unmanaged<AnyObject>.fromOpaque(raw).takeUnretainedValue()
 }

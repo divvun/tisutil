@@ -41,10 +41,18 @@ types and typed errors. The CLI holds no TIS logic of its own.
 > ASCII-capable keyboard layout, and the input source for a given language
 > (`TISCopyInputSourceForLanguage`).
 
-> [spec:tis:req:kit.lookup]
-> Lookup by input source ID MUST match the ID exactly and MUST search all
-> installed sources, enabled or not. When nothing matches, lookup MUST fail
-> with a not-found error that carries the requested ID.
+> [spec:tis:req:kit.lookup+1]
+> Lookup by input source ID MUST search all installed sources, enabled or
+> not, and MUST prefer a source whose ID matches exactly.
+>
+> TIS reports some keyboard layouts in bundles under two IDs,
+> `<bundle>.keylayout.<name>` and `<bundle>.<name>`, and switches between
+> them from one call to the next. When no ID matches exactly, lookup MUST
+> accept a source whose ID differs from the requested one only by that
+> `.keylayout.` segment.
+>
+> When nothing matches, lookup MUST fail with a not-found error that
+> carries the requested ID.
 
 ## Errors
 

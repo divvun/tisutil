@@ -7,7 +7,10 @@ public struct TISUtil: ParsableCommand {
         commandName: "tisutil",
         abstract: "Query and manage macOS text input sources: keyboard layouts and input methods.",
         discussion: ExitStatus.helpText,
-        subcommands: [List.self, Current.self, Show.self]
+        subcommands: [
+            List.self, Current.self, Show.self, Enable.self, Disable.self, Select.self,
+            Deselect.self,
+        ]
     )
 
     public init() {}

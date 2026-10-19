@@ -88,12 +88,28 @@ private let sources = FixedInputSources(installed: [abc, sme, kotoeri, palette])
     #expect(try sources.list(matching: InputSourceFilter(language: "hi_Latn")) == [hindiLatin])
 }
 
-// [spec:tis:req:kit.lookup/test]
+// [spec:tis:req:kit.lookup+1/test]
 @Test @MainActor func lookupSearchesDisabledSources() throws {
     #expect(try sources.source(id: kotoeri.id!) == kotoeri)
 }
 
-// [spec:tis:req:kit.lookup/test]
+// [spec:tis:req:kit.lookup+1/test]
+@Test @MainActor func lookupAcceptsTheOtherFormOfABundledLayoutID() throws {
+    let modern = InputSource(id: "so.example.layouts.keylayout.sv", isEnabled: true)
+    let legacy = InputSource(id: "so.example.layouts.sv", isEnabled: true)
+
+    let onlyLegacy = FixedInputSources(installed: [legacy])
+    #expect(try onlyLegacy.source(id: "so.example.layouts.keylayout.sv") == legacy)
+
+    let onlyModern = FixedInputSources(installed: [modern])
+    #expect(try onlyModern.source(id: "so.example.layouts.sv") == modern)
+
+    let both = FixedInputSources(installed: [legacy, modern])
+    #expect(try both.source(id: "so.example.layouts.keylayout.sv") == modern)
+    #expect(try both.source(id: "so.example.layouts.sv") == legacy)
+}
+
+// [spec:tis:req:kit.lookup+1/test]
 @Test @MainActor func lookupMatchesExactlyAndReportsTheID() {
     #expect(throws: TISError.notFound(id: "com.apple.keylayout")) {
         try sources.source(id: "com.apple.keylayout")

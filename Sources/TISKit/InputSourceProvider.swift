@@ -14,6 +14,9 @@ public protocol InputSourceProvider {
     func list(includeAllInstalled: Bool) throws -> [InputSource]
     func current(_ which: CurrentInputSource) throws -> InputSource
     func source(forLanguage language: String) throws -> InputSource
+    /// Makes the TIS call for `change` with no precondition or result checks;
+    /// `apply(_:to:enablingFirst:)` adds those.
+    func requestChange(_ change: InputSourceChange, id: String) throws
 }
 
 // [spec:tis:req:kit.list]
@@ -80,11 +83,23 @@ extension InputSourceProvider {
         try list(includeAllInstalled: filter.includeAllInstalled).filter(filter.matches)
     }
 
-    // [spec:tis:req:kit.lookup]
+    // [spec:tis:req:kit.lookup+1]
     public func source(id: String) throws -> InputSource {
-        guard let match = try list(includeAllInstalled: true).first(where: { $0.id == id }) else {
+        guard let match = firstMatch(try list(includeAllInstalled: true), id: id, idOf: \.id) else {
             throw TISError.notFound(id: id)
         }
         return match
     }
+}
+
+// [spec:tis:req:kit.lookup+1]
+func firstMatch<T>(_ items: [T], id: String, idOf: (T) -> String?) -> T? {
+    items.first { idOf($0) == id }
+        ?? items.first { idOf($0).map(withoutLayoutSegment) == withoutLayoutSegment(id) }
+}
+
+/// Maps `<bundle>.keylayout.<name>` and `<bundle>.<name>`, which TIS uses
+/// interchangeably for bundled keyboard layouts, to the same string.
+private func withoutLayoutSegment(_ id: String) -> String {
+    id.replacingOccurrences(of: ".keylayout.", with: ".")
 }

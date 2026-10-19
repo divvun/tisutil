@@ -38,7 +38,7 @@ private let system = SystemInputSources()
     #expect(source.supports(language: "en"))
 }
 
-// [spec:tis:req:kit.lookup/test]
+// [spec:tis:req:kit.lookup+1/test]
 @Test @MainActor func systemLookupFindsInstalledSources() throws {
     let installed = try system.list(includeAllInstalled: true)
     let disabled = try #require(installed.first { $0.isEnabled == false && $0.id != nil })
