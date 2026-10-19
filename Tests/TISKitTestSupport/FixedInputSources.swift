@@ -32,6 +32,7 @@ public final class FixedInputSources: InputSourceProvider {
     public private(set) var pauses = 0
     private var pendingChanges: [ChangeRequest] = []
     public var currentLayoutOverride: InputSource?
+    public var preferenceSources: [String: PreferenceSource] = [:]
 
     nonisolated public init(
         installed: [InputSource],
@@ -103,6 +104,11 @@ public final class FixedInputSources: InputSourceProvider {
 
     public func layoutOverride() -> InputSource? {
         currentLayoutOverride
+    }
+
+    public func preferenceSource(id: String) throws -> PreferenceSource {
+        guard let source = preferenceSources[id] else { throw TISError.notFound(id: id) }
+        return source
     }
 
     public func setLayoutOverride(id: String) throws {

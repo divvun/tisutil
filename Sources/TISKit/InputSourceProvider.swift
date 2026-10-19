@@ -25,6 +25,8 @@ public protocol InputSourceProvider {
     /// The keyboard layout the current input method types with, if it has one.
     func layoutOverride() throws -> InputSource?
     func setLayoutOverride(id: String) throws
+    /// What `AppleEnabledInputSources` would record for the source with `id`.
+    func preferenceSource(id: String) throws -> PreferenceSource
 }
 
 extension InputSourceProvider {

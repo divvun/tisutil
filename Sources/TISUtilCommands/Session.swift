@@ -17,6 +17,8 @@ enum SessionError: DiagnosedError, Equatable {
     /// `nil` means no user is logged in at the console.
     case noSession(String?)
     case notPermitted(String)
+    case needsApproval(id: String, user: String)
+    case noPreferenceEntry(id: String)
 
     var description: String {
         switch self {
@@ -24,13 +26,18 @@ enum SessionError: DiagnosedError, Equatable {
         case .noSession(nil): "no user is logged in at the console"
         case .noSession(let name?): "\(name) has no login session"
         case .notPermitted(let name): "acting on \(name)'s input sources needs root"
+        case .needsApproval(let id, let user):
+            "\(id) is a third-party input source; \(user) has to enable it after logging in"
+        case .noPreferenceEntry(let id):
+            "\(id) cannot be enabled or disabled through preferences"
         }
     }
 
     var exitStatus: ExitStatus {
         switch self {
         case .unknownUser: .usage
-        case .noSession, .notPermitted: .noPermission
+        case .noSession, .notPermitted, .needsApproval: .noPermission
+        case .noPreferenceEntry: .failure
         }
     }
 }

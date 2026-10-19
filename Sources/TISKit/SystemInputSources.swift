@@ -81,6 +81,27 @@ public struct SystemInputSources: InputSourceProvider {
         )
     }
 
+    /// Reads private TIS properties: the layout name and number that
+    /// `AppleEnabledInputSources` records, and whether the source comes with
+    /// macOS. Without them a source is treated as third-party.
+    // [spec:tis:req:session.prefs-fallback+1]
+    public func preferenceSource(id: String) throws -> PreferenceSource {
+        let reference = try reference(id: id)
+        let source = InputSource(reference)
+        func privateProperty(_ name: String) -> AnyObject? {
+            privateTISKey(name).flatMap { property(of: reference, $0) }
+        }
+        return PreferenceSource(
+            source: source,
+            entry: EnabledSourceEntry(
+                source,
+                layoutName: privateProperty("kTISPropertyKeyLayoutName") as? String,
+                layoutNumber: privateProperty("kTISPropertyKeyLayoutNumber") as? Int
+            ),
+            isFromSystem: privateProperty("kTISPropertyInputSourceIsFromSystem") as? Bool ?? false
+        )
+    }
+
     // [spec:tis:req:install.register]
     public func register(url: URL) throws {
         try check(TISRegisterInputSource(url as CFURL), "TISRegisterInputSource")
@@ -112,6 +133,13 @@ public struct SystemInputSources: InputSourceProvider {
         }
         return source
     }
+}
+
+/// A `CFStringRef` constant that HIToolbox exports but does not declare.
+func privateTISKey(_ name: String) -> CFString? {
+    guard let symbol = dlsym(UnsafeMutableRawPointer(bitPattern: -2), name) else { return nil }
+    return Unmanaged<CFString>.fromOpaque(symbol.load(as: UnsafeRawPointer.self))
+        .takeUnretainedValue()
 }
 
 // [spec:tis:req:mutate.force-enable+1]

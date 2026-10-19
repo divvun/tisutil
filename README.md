@@ -70,6 +70,12 @@ If nobody is logged in, `install --system` still copies the item. It becomes
 available at the next login, and the command exits 0 unless `--enable` or
 `--select` was given.
 
+`sudo tisutil enable --user <name> <id>` (and `disable`) for a user who is not
+logged in records the change in that user's preferences, to take effect at
+their next login. This works only for input sources that come with macOS.
+Third-party sources need the user's own approval, so they exit 77 until the
+user logs in and enables them.
+
 ### Third-party input source approval
 
 On current macOS, enabling a third-party keyboard layout or input method asks

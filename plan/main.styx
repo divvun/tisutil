@@ -249,6 +249,20 @@ children (
                         kind @blocker
                         text "The rule as written cannot hold on macOS 26. Third-party input sources are recorded as enabled in com.apple.inputsources AppleEnabledThirdPartyInputSources, not com.apple.HIToolbox AppleEnabledInputSources, and enabling one through TIS raises a prompt that the user must allow. Writing that preference for a user who is not logged in would skip their consent. The rule needs redesigning (for example, only Apple sources, or defer the enable to the user's next login) before this node is built."
                     }
+
+                    {
+                        at 2026-10-19T13:43:15.269825Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+
+                    {
+                        at 2026-10-19T13:44:47.408602Z
+                        author "brendan@necessary.nu"
+                        kind @unblock
+                        text "Rule revised to session.prefs-fallback+1: the preference fallback covers only input sources that come with macOS (kTISPropertyInputSourceIsFromSystem), whose entries need no user approval. Third-party sources exit 77 without any preference change, with or without --force."
+                    }
                 )
             }
         )

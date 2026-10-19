@@ -155,3 +155,51 @@ struct Override: InputSourceCommand {
         return CommandOutput(stdout: try output.render(layout))
     }
 }
+
+extension StateCommand {
+    /// As root, an enable or disable for a user without a login session is
+    /// recorded in their preferences instead of failing.
+    // [spec:tis:req:session.prefs-fallback+1]
+    func dispatch(in context: SessionContext) throws -> Int32? {
+        do {
+            return try reexecIfNeeded(user: session.user, in: context)
+        } catch SessionError.noSession(let name?)
+            where Self.change == .enable || Self.change == .disable
+        {
+            guard let user = context.account(name) else { throw SessionError.unknownUser(name) }
+            try MainActor.assumeIsolated {
+                try changeWithoutSession(
+                    enable: Self.change == .enable,
+                    id: id,
+                    user: user,
+                    provider: SystemInputSources(),
+                    store: UserPreferencesStore()
+                ).emit()
+            }
+            return 0
+        }
+    }
+
+    // [spec:tis:req:session.prefs-fallback+1]
+    @MainActor
+    func changeWithoutSession(
+        enable: Bool,
+        id: String,
+        user: UserAccount,
+        provider: some InputSourceProvider,
+        store: some EnabledSourcesStore
+    ) throws -> CommandOutput {
+        let found = try provider.preferenceSource(id: id)
+        guard found.isFromSystem else {
+            throw SessionError.needsApproval(id: id, user: user.name)
+        }
+        guard let entry = found.entry else { throw SessionError.noPreferenceEntry(id: id) }
+        let entries = store.entries(for: user.name)
+        try store.setEntries(entry.applied(to: entries, enable: enable), for: user.name)
+        return CommandOutput(
+            stdout: try output.render(found.source),
+            diagnostic:
+                "\(user.name) has no login session; the change applies at their next login"
+        )
+    }
+}
