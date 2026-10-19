@@ -152,6 +152,54 @@ children (
                 }
                 deps (kit.enumerate cli)
             }
+
+            {
+                id mutate.force-enable-spec
+                title "Specify explicit force enablement through the private TIS API"
+                kind @docs
+                deps (mutate.state install.place)
+                sealed true
+                log (
+                    {
+                        at 2026-10-19T13:07:07.574262Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+
+                    {
+                        at 2026-10-19T13:07:08.027882Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Doing → Done (nplan complete)"
+                    }
+                )
+            }
+
+            {
+                id mutate.force-enable
+                title "Add explicit --force enablement without the macOS approval sheet"
+                kind @feat
+                implements {
+                    swift ([spec:tis:req:mutate.force-enable])
+                }
+                deps (mutate.force-enable-spec)
+                log (
+                    {
+                        at 2026-10-19T13:07:08.183409Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+
+                    {
+                        at 2026-10-19T13:10:03.620058Z
+                        author "brendan@necessary.nu"
+                        kind @decision
+                        text "The operator opted in to force enablement after the investigation recorded in 2026-10-19-150523-nplan-init-swift-tisutil-is-a-command-line-tool.txt. Expose it as --force for enable and activation steps; keep normal enablement as the default. README and command help describe skipping the approval sheet without API implementation details, as requested."
+                    }
+                )
+            }
         )
     }
 

@@ -1,6 +1,12 @@
 import ArgumentParser
 import TISKit
 
+// [spec:tis:req:mutate.force-enable+1]
+struct EnablementOptions: ParsableArguments {
+    @Flag(help: "Skip the macOS approval sheet when enabling an input source.")
+    var force = false
+}
+
 struct WaitOptions: ParsableArguments {
     @Option(
         help: """
@@ -21,18 +27,22 @@ protocol StateCommand: InputSourceCommand {
     var waiting: WaitOptions { get }
     var id: String { get }
     var enablingFirst: Bool { get }
+    var force: Bool { get }
 }
 
 extension StateCommand {
     var enablingFirst: Bool { false }
+    var force: Bool { false }
 
-    // [spec:tis:req:mutate.verify+1]
+    // [spec:tis:req:mutate.verify+2]
+    // [spec:tis:req:mutate.force-enable+1]
     @MainActor
     func execute(provider: some InputSourceProvider) throws -> CommandOutput {
         let source = try provider.apply(
             Self.change,
             to: id,
             enablingFirst: enablingFirst,
+            forceEnable: force,
             timeout: waiting.timeout
         )
         return CommandOutput(stdout: try output.render(source))
@@ -41,7 +51,8 @@ extension StateCommand {
 
 private let idHelp = ArgumentHelp("The input source ID, for example com.apple.keylayout.ABC.")
 
-// [spec:tis:req:mutate.enable-disable]
+// [spec:tis:req:mutate.enable-disable+1]
+// [spec:tis:req:mutate.force-enable+1]
 struct Enable: StateCommand {
     static let configuration = CommandConfiguration(
         abstract: "Enable an input source. Succeeds without change if it is already enabled."
@@ -51,12 +62,15 @@ struct Enable: StateCommand {
     @OptionGroup var output: OutputOptions
     @OptionGroup var session: SessionOptions
     @OptionGroup var waiting: WaitOptions
+    @OptionGroup var enablement: EnablementOptions
+
+    var force: Bool { enablement.force }
 
     @Argument(help: idHelp)
     var id: String
 }
 
-// [spec:tis:req:mutate.enable-disable]
+// [spec:tis:req:mutate.enable-disable+1]
 struct Disable: StateCommand {
     static let configuration = CommandConfiguration(
         abstract: "Disable an input source. Succeeds without change if it is already disabled."
@@ -81,12 +95,22 @@ struct Select: StateCommand {
     @OptionGroup var output: OutputOptions
     @OptionGroup var session: SessionOptions
     @OptionGroup var waiting: WaitOptions
+    @OptionGroup var enablement: EnablementOptions
+
+    var force: Bool { enablement.force }
 
     @Flag(name: .customLong("enable"), help: "Enable the source first if it is not enabled.")
     var enablingFirst = false
 
     @Argument(help: idHelp)
     var id: String
+
+    // [spec:tis:req:mutate.force-enable+1]
+    func validate() throws {
+        if force && !enablingFirst {
+            throw ValidationError("--force requires --enable.")
+        }
+    }
 }
 
 // [spec:tis:req:mutate.select]

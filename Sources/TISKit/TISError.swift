@@ -5,6 +5,7 @@ public enum TISError: Error, Equatable, Sendable {
     case status(OSStatus, function: String)
     /// A TIS function that returns an input source or a list returned NULL.
     case noResult(function: String)
+    case unavailable(function: String)
     case notFound(id: String)
     case noSourceForLanguage(String)
     case notSelectCapable(id: String)
@@ -20,6 +21,8 @@ extension TISError: CustomStringConvertible {
             "\(function) failed with OSStatus \(status)"
         case .noResult(let function):
             "\(function) returned no result"
+        case .unavailable(let function):
+            "\(function) is unavailable on this version of macOS"
         case .notFound(let id):
             "no input source has the ID \(id)"
         case .noSourceForLanguage(let language):

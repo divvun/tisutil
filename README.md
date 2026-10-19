@@ -33,6 +33,7 @@ tisutil current --layout                      # the current keyboard layout
 tisutil show com.apple.keylayout.ABC          # every property of one source
 
 tisutil enable com.apple.keylayout.Irish
+tisutil enable --force eu.avette.inputmethod.Avette # skip the macOS approval sheet
 tisutil select --enable no.uit.giella.keyboards.sme.keyboardlayout.sme.seNO
 tisutil disable com.apple.keylayout.Irish
 
@@ -69,13 +70,17 @@ If nobody is logged in, `install --system` still copies the item. It becomes
 available at the next login, and the command exits 0 unless `--enable` or
 `--select` was given.
 
-### Third-party input sources need the user's approval
+### Third-party input source approval
 
 On current macOS, enabling a third-party keyboard layout or input method asks
 the user to allow it. The source is enabled only once they do. `tisutil`
 waits for the change to take effect, for up to 60 seconds by default
 (`--timeout <seconds>`). It exits 1 if the user denies the request or does not
 answer. Apple's own input sources are enabled immediately.
+
+`--force` skips the macOS approval sheet. Use it with `enable`, `select --enable`,
+`register --enable` or `--select`, and `install --enable` or `--select`.
+The command still checks that the source became enabled.
 
 ### Input source IDs
 

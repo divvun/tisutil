@@ -28,7 +28,9 @@ private let placed = InstallableItem(
 )
 
 // [spec:tis:req:install.place+1/test]
-@Test @MainActor func installCopiesRegistersAndActivates() throws {
+// [spec:tis:req:mutate.force-enable+1/test]
+@Test(arguments: [false, true]) @MainActor
+func installCopiesRegistersAndActivates(force: Bool) throws {
     let source = FileManager.default.temporaryDirectory.appending(
         path: "tisutil-\(UUID().uuidString).keylayout")
     try Data(#"<keyboard group="126" id="-1" name="Test Layout"></keyboard>"#.utf8).write(
@@ -47,11 +49,30 @@ private let placed = InstallableItem(
     let sources = FixedInputSources(installed: [])
     sources.registrations[destination] = [layout]
 
-    let output = try install(["--enable", source.path]).install(into: library, provider: sources)
+    let arguments = ["--enable", source.path] + (force ? ["--force"] : [])
+    let output = try install(arguments).install(into: library, provider: sources)
 
     #expect(sources.registeredURLs == [destination])
     #expect(output.stdout.contains("org.unknown.keylayout.TestLayout"))
     #expect(sources.installed.first?.isEnabled == true)
+    #expect(
+        sources.changeRequests == [
+            .init(force ? .forceEnable : .enable, layout.id!)
+        ])
+}
+
+// [spec:tis:req:mutate.force-enable+1/test]
+@Test func systemInstallForwardsForceToRegistration() throws {
+    let command = try install([
+        "--system", "--enable", "--select", "--force", "--timeout", "3", "/tmp/sme.bundle",
+    ])
+    let arguments = command.registerArguments(for: placed)
+    let register = try #require(try TISUtil.parseAsRoot(arguments) as? Register)
+
+    #expect(register.activation.enable)
+    #expect(register.activation.select)
+    #expect(register.activation.enablement.force)
+    #expect(register.waiting.timeout == 3)
 }
 
 // [spec:tis:req:install.place+1/test]

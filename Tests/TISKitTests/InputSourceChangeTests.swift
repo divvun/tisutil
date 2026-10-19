@@ -21,7 +21,7 @@ private func fixture(enabled: Bool = false, selected: Bool = false) -> FixedInpu
     ])
 }
 
-// [spec:tis:req:mutate.enable-disable/test]
+// [spec:tis:req:mutate.enable-disable+1/test]
 @Test @MainActor func enableAndDisableRequestTheChange() throws {
     let sources = fixture()
 
@@ -30,7 +30,7 @@ private func fixture(enabled: Bool = false, selected: Bool = false) -> FixedInpu
     #expect(sources.changeRequests == [.init(.enable, layoutID), .init(.disable, layoutID)])
 }
 
-// [spec:tis:req:mutate.enable-disable/test]
+// [spec:tis:req:mutate.enable-disable+1/test]
 @Test @MainActor func enablingAnEnabledSourceChangesNothing() throws {
     let enabled = fixture(enabled: true)
     #expect(try enabled.apply(.enable, to: layoutID).isEnabled == true)
@@ -76,7 +76,7 @@ private func fixture(enabled: Bool = false, selected: Bool = false) -> FixedInpu
     #expect(sources.changeRequests == [.init(.deselect, layoutID)])
 }
 
-// [spec:tis:req:mutate.verify+1/test]
+// [spec:tis:req:mutate.verify+2/test]
 @Test @MainActor func changeThatDoesNotTakeEffectIsAnError() {
     let disabled = fixture()
     disabled.appliesChanges = false
@@ -91,7 +91,7 @@ private func fixture(enabled: Bool = false, selected: Bool = false) -> FixedInpu
     }
 }
 
-// [spec:tis:req:mutate.verify+1/test]
+// [spec:tis:req:mutate.verify+2/test]
 @Test @MainActor func verificationFollowsALayoutThatTISRenames() throws {
     let sources = FixedInputSources(installed: [
         InputSource(
@@ -115,7 +115,7 @@ private func fixture(enabled: Bool = false, selected: Bool = false) -> FixedInpu
     #expect(selected.isSelected == true)
 }
 
-// [spec:tis:req:mutate.verify+1/test]
+// [spec:tis:req:mutate.verify+2/test]
 @Test @MainActor func aChangeThatTakesEffectLaterIsWaitedFor() throws {
     let sources = fixture()
     sources.pausesBeforeApplying = 3
@@ -124,7 +124,7 @@ private func fixture(enabled: Bool = false, selected: Bool = false) -> FixedInpu
     #expect(sources.pauses == 3)
 }
 
-// [spec:tis:req:mutate.verify+1/test]
+// [spec:tis:req:mutate.verify+2/test]
 @Test @MainActor func waitingStopsAtTheTimeout() {
     let sources = fixture()
     sources.appliesChanges = false
@@ -142,13 +142,13 @@ private func fixture(enabled: Bool = false, selected: Bool = false) -> FixedInpu
     #expect(impatient.pauses == 0)
 }
 
-// [spec:tis:req:mutate.verify+1/test]
+// [spec:tis:req:mutate.verify+2/test]
 @Test func anUnappliedEnableMentionsThePrompt() {
     #expect(TISError.notApplied(.enable, id: "x").description.contains("denied or not answered"))
     #expect(!TISError.notApplied(.select, id: "x").description.contains("denied"))
 }
 
-// [spec:tis:req:mutate.verify+1/test]
+// [spec:tis:req:mutate.verify+2/test]
 @Test @MainActor func changingAnUnknownSourceIsNotFound() {
     #expect(throws: TISError.notFound(id: "no.such")) {
         try fixture().apply(.enable, to: "no.such")

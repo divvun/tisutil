@@ -1,4 +1,5 @@
 import Carbon
+import Darwin
 
 /// The input sources of the user session this process runs in.
 public struct SystemInputSources: InputSourceProvider {
@@ -50,12 +51,14 @@ public struct SystemInputSources: InputSourceProvider {
         return InputSource(source)
     }
 
-    // [spec:tis:req:mutate.enable-disable]
+    // [spec:tis:req:mutate.enable-disable+1]
     // [spec:tis:req:mutate.select]
+    // [spec:tis:req:mutate.force-enable+1]
     public func requestChange(_ change: InputSourceChange, id: String) throws {
         let source = try reference(id: id)
         switch change {
         case .enable: try check(TISEnableInputSource(source), "TISEnableInputSource")
+        case .forceEnable: try enableWithoutPrompt(source)
         case .disable: try check(TISDisableInputSource(source), "TISDisableInputSource")
         case .select: try check(TISSelectInputSource(source), "TISSelectInputSource")
         case .deselect: try check(TISDeselectInputSource(source), "TISDeselectInputSource")
@@ -72,7 +75,7 @@ public struct SystemInputSources: InputSourceProvider {
 
     /// Runs the main run loop, not a plain sleep, so that the distributed
     /// notifications TIS refreshes its state from are delivered.
-    // [spec:tis:req:mutate.verify+1]
+    // [spec:tis:req:mutate.verify+2]
     public func pause(seconds: Double) {
         RunLoop.main.run(until: Date().addingTimeInterval(seconds))
     }
@@ -93,4 +96,19 @@ public struct SystemInputSources: InputSourceProvider {
         }
         return source
     }
+}
+
+// [spec:tis:req:mutate.force-enable+1]
+@MainActor
+func enableWithoutPrompt(
+    _ source: TISInputSource,
+    symbol: UnsafeMutableRawPointer? = dlsym(
+        UnsafeMutableRawPointer(bitPattern: -2), "TISEnableInputSourceWithOptions")
+) throws {
+    let name = "TISEnableInputSourceWithOptions"
+    guard let symbol else { throw TISError.unavailable(function: name) }
+    typealias Enable = @convention(c) (TISInputSource, UInt32) -> OSStatus
+    let enable = unsafeBitCast(symbol, to: Enable.self)
+    // HIToolbox tests bit 1 to skip the approval sheet and enable directly.
+    try check(enable(source, 2), name)
 }

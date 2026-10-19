@@ -28,3 +28,25 @@ import Testing
     #expect(ExitStatus(for: InstallError.unrecognisedItem(path: "/x")) == .usage)
     #expect(ExitStatus(for: InstallError.nothingRegistered(path: "/x")) == .failure)
 }
+
+// [spec:tis:req:mutate.force-enable+1/test]
+@Test(arguments: ["--enable", "--select"]) @MainActor
+func registerCanForceItsActivation(_ activation: String) throws {
+    let file = FileManager.default.temporaryDirectory.appending(
+        path: "tisutil-\(UUID().uuidString).keylayout")
+    defer { try? FileManager.default.removeItem(at: file) }
+    try Data(#"<keyboard group="126" id="-1" name="Test Layout"></keyboard>"#.utf8).write(to: file)
+    let source = InputSource(
+        id: "org.unknown.keylayout.TestLayout", type: .keyboardLayout, localizedName: "Test Layout",
+        isEnableCapable: true, isSelectCapable: true, isEnabled: false, isSelected: false)
+    let sources = FixedInputSources(installed: [])
+    sources.registrations[file.standardizedFileURL] = [source]
+    let command = try #require(
+        try TISUtil.parseAsRoot(["register", activation, "--force", file.path]) as? Register)
+
+    _ = try command.execute(provider: sources)
+
+    let expected: [InputSourceChange] =
+        activation == "--select" ? [.forceEnable, .select] : [.forceEnable]
+    #expect(sources.changeRequests.map(\.change) == expected)
+}

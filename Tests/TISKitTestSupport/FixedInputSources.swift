@@ -85,7 +85,7 @@ public final class FixedInputSources: InputSourceProvider {
             return
         }
         switch change {
-        case .enable: installed[index].isEnabled = true
+        case .enable, .forceEnable: installed[index].isEnabled = true
         case .disable: installed[index].isEnabled = false
         case .select: installed[index].isSelected = true
         case .deselect: installed[index].isSelected = false

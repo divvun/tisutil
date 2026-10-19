@@ -3,6 +3,8 @@ import Foundation
 import TISKit
 
 struct ActivationOptions: ParsableArguments {
+    @OptionGroup var enablement: EnablementOptions
+
     @Flag(help: "Enable every input source the item provides.")
     var enable = false
 
@@ -11,6 +13,14 @@ struct ActivationOptions: ParsableArguments {
 
     var arguments: [String] {
         (enable ? ["--enable"] : []) + (select ? ["--select"] : [])
+            + (enablement.force ? ["--force"] : [])
+    }
+
+    // [spec:tis:req:mutate.force-enable+1]
+    func validate() throws {
+        if enablement.force && !enable && !select {
+            throw ValidationError("--force requires --enable or --select.")
+        }
     }
 }
 
@@ -39,6 +49,7 @@ struct Register: InputSourceCommand {
             provider.register(item),
             enable: activation.enable,
             select: activation.select,
+            forceEnable: activation.enablement.force,
             timeout: waiting.timeout
         )
         return CommandOutput(stdout: try output.render(sources))
@@ -92,6 +103,7 @@ struct Install: InputSourceCommand {
             provider.register(placed),
             enable: activation.enable,
             select: activation.select,
+            forceEnable: activation.enablement.force,
             timeout: waiting.timeout
         )
         return CommandOutput(stdout: try output.render(sources))

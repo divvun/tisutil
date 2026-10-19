@@ -167,17 +167,20 @@ extension InputSourceProvider {
     /// Enables every enable-capable source in `sources` and, with `select`,
     /// selects the first select-capable one; returns the sources afterwards.
     // [spec:tis:req:install.enable]
+    // [spec:tis:req:mutate.force-enable+1]
     public func activate(
         _ sources: [InputSource],
         enable: Bool,
         select: Bool,
+        forceEnable: Bool = false,
         timeout: Double = InputSourceChange.defaultTimeout
     ) throws -> [InputSource] {
         var result = sources
         if enable {
             for (index, source) in result.enumerated() {
                 guard let id = source.id, source.isEnableCapable == true else { continue }
-                result[index] = try apply(.enable, to: id, timeout: timeout)
+                result[index] = try apply(
+                    .enable, to: id, forceEnable: forceEnable, timeout: timeout)
             }
         }
         if select,
@@ -187,6 +190,7 @@ extension InputSourceProvider {
                 .select,
                 to: result[index].id!,
                 enablingFirst: true,
+                forceEnable: forceEnable,
                 timeout: timeout
             )
         }
