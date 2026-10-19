@@ -1,3 +1,4 @@
+import Foundation
 import TISKit
 
 public final class FixedInputSources: InputSourceProvider {
@@ -21,6 +22,9 @@ public final class FixedInputSources: InputSourceProvider {
     /// third-party layouts in the process that changed them.
     public var idsAfterChange: [String: String] = [:]
     public private(set) var changeRequests: [ChangeRequest] = []
+    /// Sources that `register(url:)` installs for each URL.
+    public var registrations: [URL: [InputSource]] = [:]
+    public private(set) var registeredURLs: [URL] = []
 
     nonisolated public init(
         installed: [InputSource],
@@ -64,5 +68,10 @@ public final class FixedInputSources: InputSourceProvider {
         if let newID = idsAfterChange[id] {
             installed[index].id = newID
         }
+    }
+
+    public func register(url: URL) throws {
+        registeredURLs.append(url)
+        installed += registrations[url] ?? []
     }
 }

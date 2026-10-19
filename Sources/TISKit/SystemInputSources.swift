@@ -62,6 +62,11 @@ public struct SystemInputSources: InputSourceProvider {
         }
     }
 
+    // [spec:tis:req:install.register]
+    public func register(url: URL) throws {
+        try check(TISRegisterInputSource(url as CFURL), "TISRegisterInputSource")
+    }
+
     /// Filtering `TISCreateInputSourceList` by `kTISPropertyInputSourceID`
     /// misses bundled layouts that TIS currently reports under their other ID,
     /// so this matches against the full list instead.

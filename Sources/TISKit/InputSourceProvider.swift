@@ -17,6 +17,7 @@ public protocol InputSourceProvider {
     /// Makes the TIS call for `change` with no precondition or result checks;
     /// `apply(_:to:enablingFirst:)` adds those.
     func requestChange(_ change: InputSourceChange, id: String) throws
+    func register(url: URL) throws
 }
 
 // [spec:tis:req:kit.list]

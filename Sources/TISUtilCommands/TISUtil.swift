@@ -9,7 +9,7 @@ public struct TISUtil: ParsableCommand {
         discussion: ExitStatus.helpText,
         subcommands: [
             List.self, Current.self, Show.self, Enable.self, Disable.self, Select.self,
-            Deselect.self,
+            Deselect.self, Register.self,
         ]
     )
 
@@ -26,9 +26,9 @@ public struct TISUtil: ParsableCommand {
                     try reexec(as: user, arguments: Array(CommandLine.arguments.dropFirst())))
             }
             try command.run()
-        } catch let error where error is TISError || error is SessionError {
-            printDiagnostic("\(error)")
-            Foundation.exit(ExitStatus(for: error).rawValue)
+        } catch let error as any DiagnosedError {
+            printDiagnostic(error.description)
+            Foundation.exit(error.exitStatus.rawValue)
         } catch {
             exit(withError: error)
         }

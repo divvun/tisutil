@@ -28,15 +28,35 @@ public enum ExitStatus: Int32, CaseIterable, Sendable {
 
     // [spec:tis:req:cli.exit-codes]
     init(for error: any Error) {
-        switch error {
-        case TISError.notFound(_), TISError.noSourceForLanguage(_):
-            self = .notFound
-        case is TISError:
-            self = .failure
-        case let error as SessionError:
+        if let error = error as? any DiagnosedError {
             self = error.exitStatus
-        default:
+        } else {
             self = ExitStatus(rawValue: TISUtil.exitCode(for: error).rawValue) ?? .failure
+        }
+    }
+}
+
+/// Errors tisutil reports as a one-line diagnostic and a specific exit status.
+protocol DiagnosedError: Error, CustomStringConvertible {
+    var exitStatus: ExitStatus { get }
+}
+
+// [spec:tis:req:cli.exit-codes]
+extension TISError: DiagnosedError {
+    var exitStatus: ExitStatus {
+        switch self {
+        case .notFound, .noSourceForLanguage: .notFound
+        default: .failure
+        }
+    }
+}
+
+// [spec:tis:req:cli.exit-codes]
+extension InstallError: DiagnosedError {
+    var exitStatus: ExitStatus {
+        switch self {
+        case .unrecognisedItem: .usage
+        case .nothingRegistered: .failure
         }
     }
 }

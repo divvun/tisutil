@@ -12,7 +12,7 @@ struct SessionOptions: ParsableArguments {
     var user: String?
 }
 
-enum SessionError: Error, Equatable, CustomStringConvertible {
+enum SessionError: DiagnosedError, Equatable {
     case unknownUser(String)
     /// `nil` means no user is logged in at the console.
     case noSession(String?)

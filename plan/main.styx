@@ -203,6 +203,14 @@ children (
                     swift ([spec:tis:req:install.kind-detect] [spec:tis:req:install.register])
                 }
                 deps (kit.enumerate cli)
+                log (
+                    {
+                        at 2026-10-19T12:20:53.107731Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+                )
             }
 
             {
