@@ -186,6 +186,14 @@ children (
                     swift ([spec:tis:req:session.prefs-fallback])
                 }
                 deps (session.reexec mutate.state)
+                log (
+                    {
+                        at 2026-10-19T12:47:47.440409Z
+                        author "brendan@necessary.nu"
+                        kind @blocker
+                        text "The rule as written cannot hold on macOS 26. Third-party input sources are recorded as enabled in com.apple.inputsources AppleEnabledThirdPartyInputSources, not com.apple.HIToolbox AppleEnabledInputSources, and enabling one through TIS raises a prompt that the user must allow. Writing that preference for a user who is not logged in would skip their consent. The rule needs redesigning (for example, only Apple sources, or defer the enable to the user's next login) before this node is built."
+                    }
+                )
             }
         )
     }
@@ -242,5 +250,33 @@ children (
             swift ([spec:tis:req:watch.stream] [spec:tis:req:watch.json-lines])
         }
         deps (kit.enumerate cli)
+    }
+
+    {
+        id docs
+        title "README and AGENTS guide"
+        kind @docs
+        deps (
+            query
+            mutate.state
+            session.reexec
+            install.place
+        )
+        sealed true
+        log (
+            {
+                at 2026-10-19T12:48:32.835479Z
+                author "brendan@necessary.nu"
+                kind @status
+                text "Todo → Doing (nplan start)"
+            }
+
+            {
+                at 2026-10-19T12:48:55.117935Z
+                author "brendan@necessary.nu"
+                kind @status
+                text "Doing → Done (nplan complete)"
+            }
+        )
     }
 )
