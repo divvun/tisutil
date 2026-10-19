@@ -1,0 +1,3 @@
+import TisutilCommands
+
+Tisutil.main()

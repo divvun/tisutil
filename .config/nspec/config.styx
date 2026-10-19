@@ -1,0 +1,5 @@
+specs ({
+    name tis,
+    include (docs/spec/**/*.md),
+    impls ({name swift, languages (@swift), include (Sources/**/*.swift Tests/**/*.swift), exclude (.build/**)})
+})

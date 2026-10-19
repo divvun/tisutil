@@ -1,0 +1,185 @@
+name tisutil
+
+source {
+    url "git@github.com:divvun/tisutil.git"
+    ref main
+}
+
+children (
+    {
+        id kit
+        title "TISKit library"
+        kind @feat
+        children (
+            {
+                id kit.package
+                title "SwiftPM package: TISKit library and tisutil executable (swift-argument-parser, macOS 13)"
+                priority 0
+                kind @build
+                sealed true
+                log (
+                    {
+                        at 2026-10-19T11:49:52.266833Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+
+                    {
+                        at 2026-10-19T11:55:40.062771Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Doing → Done (nplan complete)"
+                    }
+                )
+            }
+
+            {
+                id kit.model
+                title "Input source snapshot, category/type mapping, typed TIS errors"
+                priority 0
+                implements {
+                    swift (
+                        [spec:tis:def:kit.input-source]
+                        [spec:tis:req:kit.property-snapshot]
+                        [spec:tis:req:kit.category-type]
+                        [spec:tis:req:kit.errors]
+                    )
+                }
+                deps (kit.package)
+                log (
+                    {
+                        at 2026-10-19T11:55:43.133334Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+                )
+            }
+
+            {
+                id kit.enumerate
+                title "List with filters, current sources, lookup by ID"
+                priority 0
+                implements {
+                    swift ([spec:tis:req:kit.list] [spec:tis:req:kit.current] [spec:tis:req:kit.lookup])
+                }
+                deps (kit.model)
+            }
+        )
+    }
+
+    {
+        id cli
+        title "Command-line conventions: output modes, JSON shape, exit codes"
+        priority 0
+        kind @feat
+        implements {
+            swift ([spec:tis:req:cli.output-modes] [spec:tis:req:cli.json-shape] [spec:tis:req:cli.exit-codes])
+        }
+        deps (kit.model)
+    }
+
+    {
+        id query
+        title "Query commands: list, current, show"
+        priority 0
+        kind @feat
+        implements {
+            swift ([spec:tis:req:query.list] [spec:tis:req:query.current] [spec:tis:req:query.show])
+        }
+        deps (kit.enumerate cli)
+    }
+
+    {
+        id mutate
+        title "State commands"
+        kind @feat
+        children (
+            {
+                id mutate.state
+                title "enable / disable / select / deselect, with post-change verification"
+                priority 1
+                implements {
+                    swift ([spec:tis:req:mutate.enable-disable] [spec:tis:req:mutate.select] [spec:tis:req:mutate.verify])
+                }
+                deps (kit.enumerate cli)
+            }
+
+            {
+                id mutate.layout-override
+                title "Get and set the input method keyboard layout override"
+                priority 2
+                implements {
+                    swift ([spec:tis:req:mutate.layout-override])
+                }
+                deps (kit.enumerate cli)
+            }
+        )
+    }
+
+    {
+        id session
+        title "User sessions for root callers"
+        kind @feat
+        children (
+            {
+                id session.reexec
+                title "Console user detection, re-exec via launchctl asuser, privilege checks"
+                priority 1
+                implements {
+                    swift ([spec:tis:req:session.console-user] [spec:tis:req:session.reexec] [spec:tis:req:session.privilege])
+                }
+                deps (cli)
+            }
+
+            {
+                id session.prefs-fallback
+                title "Enable/disable through HIToolbox preferences when the user has no session"
+                priority 2
+                implements {
+                    swift ([spec:tis:req:session.prefs-fallback])
+                }
+                deps (session.reexec mutate.state)
+            }
+        )
+    }
+
+    {
+        id install
+        title "Registration and installation"
+        kind @feat
+        children (
+            {
+                id install.register
+                title "Detect item kind and register it with TIS"
+                priority 1
+                implements {
+                    swift ([spec:tis:req:install.kind-detect] [spec:tis:req:install.register])
+                }
+                deps (kit.enumerate cli)
+            }
+
+            {
+                id install.place
+                title "Copy into Keyboard Layouts / Input Methods, then register and optionally enable"
+                priority 1
+                implements {
+                    swift ([spec:tis:req:install.place] [spec:tis:req:install.enable])
+                }
+                deps (install.register mutate.state session.reexec)
+            }
+        )
+    }
+
+    {
+        id watch
+        title "Watch selection and enablement changes"
+        priority 2
+        kind @feat
+        implements {
+            swift ([spec:tis:req:watch.stream] [spec:tis:req:watch.json-lines])
+        }
+        deps (kit.enumerate cli)
+    }
+)

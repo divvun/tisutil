@@ -1,0 +1,19 @@
+platforms (
+    {
+        platform swift
+        files (Package.swift Package.resolved Sources/**/*.swift Tests/**/*.swift)
+        checks {
+            format {
+                cmd "swift format lint --strict --recursive Package.swift Sources Tests"
+                fix "swift format --in-place --recursive Package.swift Sources Tests"
+            }
+            test {
+                cmd "swift test"
+            }
+        }
+    }
+)
+
+commit {
+    type-prefix "required"
+}
