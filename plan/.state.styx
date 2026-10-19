@@ -35,7 +35,6 @@ rule_versions (
 
 assertions (
     {id kit.package, kind @complete, author "brendan@necessary.nu", at 2026-10-19T11:55:40.062771Z}
-    {id query, kind @doing, author "brendan@necessary.nu", at 2026-10-19T12:04:46.150058Z}
 )
 
 impl_evidence (
@@ -83,6 +82,15 @@ impl_evidence (
         {id kit.errors, version 0}
         {id kit.input-source, version 0}
         {id kit.property-snapshot, version 0}
+    )}
+    {id query, covered_rules (
+        query.current
+        query.list
+        query.show
+    ), covered_claims (
+        {impl_name swift, rule query.current}
+        {impl_name swift, rule query.list}
+        {impl_name swift, rule query.show}
     )}
 )
 

@@ -6,7 +6,8 @@ public struct TISUtil: ParsableCommand {
     public static let configuration = CommandConfiguration(
         commandName: "tisutil",
         abstract: "Query and manage macOS text input sources: keyboard layouts and input methods.",
-        discussion: ExitStatus.helpText
+        discussion: ExitStatus.helpText,
+        subcommands: [List.self, Current.self, Show.self]
     )
 
     public init() {}
