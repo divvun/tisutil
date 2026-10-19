@@ -1,6 +1,6 @@
 schema_version 7
 
-last_sync_at 2026-10-19T12:07:48.179909Z
+last_sync_at 2026-10-19T12:18:02.490589Z
 
 rule_versions (
     {id cli.exit-codes, version 0}
@@ -15,7 +15,7 @@ rule_versions (
     {id kit.errors, version 0}
     {id kit.input-source, version 0}
     {id kit.list, version 0}
-    {id kit.lookup, version 0}
+    {id kit.lookup, version 1}
     {id kit.main-thread, version 0}
     {id kit.property-snapshot, version 0}
     {id mutate.enable-disable, version 0}
@@ -61,6 +61,11 @@ impl_evidence (
         {impl_name swift, rule kit.list}
         {impl_name swift, rule kit.lookup}
         {impl_name swift, rule kit.main-thread}
+    ), rule_versions_seen (
+        {id kit.current, version 0}
+        {id kit.list, version 0}
+        {id kit.lookup, version 1}
+        {id kit.main-thread, version 0}
     )}
     {id kit.model, covered_rules (
         kit.category-type
@@ -78,6 +83,19 @@ impl_evidence (
         {id kit.input-source, version 0}
         {id kit.property-snapshot, version 0}
     )}
+    {id mutate.state, covered_rules (
+        mutate.enable-disable
+        mutate.select
+        mutate.verify
+    ), covered_claims (
+        {impl_name swift, rule mutate.enable-disable}
+        {impl_name swift, rule mutate.select}
+        {impl_name swift, rule mutate.verify}
+    ), rule_versions_seen (
+        {id mutate.enable-disable, version 0}
+        {id mutate.select, version 0}
+        {id mutate.verify, version 0}
+    )}
     {id query, covered_rules (
         query.current
         query.list
@@ -91,14 +109,14 @@ impl_evidence (
         {id query.list, version 0}
         {id query.show, version 0}
     )}
-    {id mutate.state, covered_rules (
-        mutate.enable-disable
-        mutate.select
-        mutate.verify
+    {id session.reexec, covered_rules (
+        session.console-user
+        session.privilege
+        session.reexec
     ), covered_claims (
-        {impl_name swift, rule mutate.enable-disable}
-        {impl_name swift, rule mutate.select}
-        {impl_name swift, rule mutate.verify}
+        {impl_name swift, rule session.console-user}
+        {impl_name swift, rule session.privilege}
+        {impl_name swift, rule session.reexec}
     )}
 )
 

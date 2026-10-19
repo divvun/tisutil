@@ -19,9 +19,15 @@ public struct TISUtil: ParsableCommand {
     public static func main() {
         do {
             var command = try parseAsRoot()
+            if let command = command as? any InputSourceCommand,
+                case .reexec(let user) = try route(user: command.session.user, in: .system())
+            {
+                Foundation.exit(
+                    try reexec(as: user, arguments: Array(CommandLine.arguments.dropFirst())))
+            }
             try command.run()
-        } catch let error as TISError {
-            printDiagnostic(error.description)
+        } catch let error where error is TISError || error is SessionError {
+            printDiagnostic("\(error)")
             Foundation.exit(ExitStatus(for: error).rawValue)
         } catch {
             exit(withError: error)

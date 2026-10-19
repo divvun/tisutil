@@ -29,6 +29,7 @@ struct Enable: StateCommand {
     static let change = InputSourceChange.enable
 
     @OptionGroup var output: OutputOptions
+    @OptionGroup var session: SessionOptions
 
     @Argument(help: idHelp)
     var id: String
@@ -42,6 +43,7 @@ struct Disable: StateCommand {
     static let change = InputSourceChange.disable
 
     @OptionGroup var output: OutputOptions
+    @OptionGroup var session: SessionOptions
 
     @Argument(help: idHelp)
     var id: String
@@ -55,6 +57,7 @@ struct Select: StateCommand {
     static let change = InputSourceChange.select
 
     @OptionGroup var output: OutputOptions
+    @OptionGroup var session: SessionOptions
 
     @Flag(name: .customLong("enable"), help: "Enable the source first if it is not enabled.")
     var enablingFirst = false
@@ -71,6 +74,7 @@ struct Deselect: StateCommand {
     static let change = InputSourceChange.deselect
 
     @OptionGroup var output: OutputOptions
+    @OptionGroup var session: SessionOptions
 
     @Argument(help: idHelp)
     var id: String

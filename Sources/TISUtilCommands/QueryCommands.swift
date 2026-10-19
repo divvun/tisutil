@@ -8,6 +8,7 @@ struct List: InputSourceCommand {
     )
 
     @OptionGroup var output: OutputOptions
+    @OptionGroup var session: SessionOptions
 
     @Flag(help: "Include sources that are installed but not enabled.")
     var all = false
@@ -76,6 +77,7 @@ struct Current: InputSourceCommand {
     )
 
     @OptionGroup var output: OutputOptions
+    @OptionGroup var session: SessionOptions
 
     @Flag(help: "Show the current keyboard layout.")
     var layout = false
@@ -120,6 +122,7 @@ struct Show: InputSourceCommand {
     )
 
     @OptionGroup var output: OutputOptions
+    @OptionGroup var session: SessionOptions
 
     @Argument(help: "The input source ID, for example com.apple.keylayout.ABC.")
     var id: String

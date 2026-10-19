@@ -2,6 +2,7 @@ import ArgumentParser
 import TISKit
 
 protocol InputSourceCommand: ParsableCommand, Sendable {
+    var session: SessionOptions { get }
     @MainActor func execute(provider: some InputSourceProvider) throws -> CommandOutput
 }
 

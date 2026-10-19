@@ -168,6 +168,14 @@ children (
                     swift ([spec:tis:req:session.console-user] [spec:tis:req:session.reexec] [spec:tis:req:session.privilege])
                 }
                 deps (cli)
+                log (
+                    {
+                        at 2026-10-19T12:19:05.158213Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+                )
             }
 
             {

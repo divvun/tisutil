@@ -33,6 +33,8 @@ public enum ExitStatus: Int32, CaseIterable, Sendable {
             self = .notFound
         case is TISError:
             self = .failure
+        case let error as SessionError:
+            self = error.exitStatus
         default:
             self = ExitStatus(rawValue: TISUtil.exitCode(for: error).rawValue) ?? .failure
         }
