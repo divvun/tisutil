@@ -65,6 +65,22 @@ public struct SystemInputSources: InputSourceProvider {
         }
     }
 
+    // [spec:tis:req:mutate.layout-override]
+    public func layoutOverride() -> InputSource? {
+        guard let layout = TISCopyInputMethodKeyboardLayoutOverride()?.takeRetainedValue() else {
+            return nil
+        }
+        return InputSource(layout)
+    }
+
+    // [spec:tis:req:mutate.layout-override]
+    public func setLayoutOverride(id: String) throws {
+        try check(
+            TISSetInputMethodKeyboardLayoutOverride(try reference(id: id)),
+            "TISSetInputMethodKeyboardLayoutOverride"
+        )
+    }
+
     // [spec:tis:req:install.register]
     public func register(url: URL) throws {
         try check(TISRegisterInputSource(url as CFURL), "TISRegisterInputSource")

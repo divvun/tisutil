@@ -127,3 +127,31 @@ struct Deselect: StateCommand {
     @Argument(help: idHelp)
     var id: String
 }
+
+// [spec:tis:req:mutate.layout-override]
+struct Override: InputSourceCommand {
+    static let configuration = CommandConfiguration(
+        abstract: "Print or set the keyboard layout the current input method types with."
+    )
+
+    @OptionGroup var output: OutputOptions
+    @OptionGroup var session: SessionOptions
+
+    @Argument(help: "A keyboard layout ID to set. Without it, the current override is printed.")
+    var id: String?
+
+    @MainActor
+    func execute(provider: some InputSourceProvider) throws -> CommandOutput {
+        if let id {
+            return CommandOutput(stdout: try output.render(provider.overrideLayout(with: id)))
+        }
+        guard let layout = try provider.layoutOverride() else {
+            return CommandOutput(
+                stdout: output.json ? "null" : "",
+                status: .notFound,
+                diagnostic: "the current input method has no keyboard layout override"
+            )
+        }
+        return CommandOutput(stdout: try output.render(layout))
+    }
+}

@@ -9,7 +9,7 @@ public struct TISUtil: ParsableCommand {
         discussion: ExitStatus.helpText,
         subcommands: [
             List.self, Current.self, Show.self, Enable.self, Disable.self, Select.self,
-            Deselect.self, Register.self, Install.self, Watch.self,
+            Deselect.self, Override.self, Register.self, Install.self, Watch.self,
         ]
     )
 

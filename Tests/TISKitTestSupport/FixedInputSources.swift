@@ -31,6 +31,7 @@ public final class FixedInputSources: InputSourceProvider {
     public var pausesBeforeApplying = 0
     public private(set) var pauses = 0
     private var pendingChanges: [ChangeRequest] = []
+    public var currentLayoutOverride: InputSource?
 
     nonisolated public init(
         installed: [InputSource],
@@ -98,5 +99,16 @@ public final class FixedInputSources: InputSourceProvider {
     public func register(url: URL) throws {
         registeredURLs.append(url)
         installed += registrations[url] ?? []
+    }
+
+    public func layoutOverride() -> InputSource? {
+        currentLayoutOverride
+    }
+
+    public func setLayoutOverride(id: String) throws {
+        guard let layout = installed.first(where: { $0.id == id }) else {
+            throw TISError.notFound(id: id)
+        }
+        currentLayoutOverride = layout
     }
 }

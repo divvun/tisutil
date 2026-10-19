@@ -151,6 +151,14 @@ children (
                     swift ([spec:tis:req:mutate.layout-override])
                 }
                 deps (kit.enumerate cli)
+                log (
+                    {
+                        at 2026-10-19T13:38:50.57878Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+                )
             }
 
             {

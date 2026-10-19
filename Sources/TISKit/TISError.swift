@@ -10,6 +10,7 @@ public enum TISError: Error, Equatable, Sendable {
     case noSourceForLanguage(String)
     case notSelectCapable(id: String)
     case notEnabled(id: String)
+    case notAKeyboardLayout(id: String)
     /// TIS returned `noErr`, but reading the source back shows the change was not made.
     case notApplied(InputSourceChange, id: String)
 }
@@ -31,6 +32,8 @@ extension TISError: CustomStringConvertible {
             "\(id) cannot be selected or deselected"
         case .notEnabled(let id):
             "\(id) is not enabled"
+        case .notAKeyboardLayout(let id):
+            "\(id) is not a keyboard layout"
         case .notApplied(.enable, let id):
             "\(id) is still not enabled; if macOS asked to allow it, the request was denied or not answered"
         case .notApplied(let change, let id):

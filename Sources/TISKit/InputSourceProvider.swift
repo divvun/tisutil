@@ -22,6 +22,23 @@ public protocol InputSourceProvider {
     /// Lets TIS deliver state changes, including the user's answer to a
     /// macOS prompt, while a change is being waited for.
     func pause(seconds: Double)
+    /// The keyboard layout the current input method types with, if it has one.
+    func layoutOverride() throws -> InputSource?
+    func setLayoutOverride(id: String) throws
+}
+
+extension InputSourceProvider {
+    /// Makes the keyboard layout with `id` the one the current input method
+    /// types with, and returns that layout.
+    // [spec:tis:req:mutate.layout-override]
+    public func overrideLayout(with id: String) throws -> InputSource {
+        let layout = try source(id: id)
+        guard layout.type == .keyboardLayout else {
+            throw TISError.notAKeyboardLayout(id: id)
+        }
+        try setLayoutOverride(id: layout.id ?? id)
+        return layout
+    }
 }
 
 // [spec:tis:req:kit.list]

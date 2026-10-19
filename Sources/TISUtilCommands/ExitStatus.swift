@@ -46,6 +46,7 @@ extension TISError: DiagnosedError {
     var exitStatus: ExitStatus {
         switch self {
         case .notFound, .noSourceForLanguage: .notFound
+        case .notAKeyboardLayout: .usage
         default: .failure
         }
     }

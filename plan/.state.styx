@@ -159,6 +159,11 @@ impl_evidence (
         {impl_name swift, rule watch.json-lines}
         {impl_name swift, rule watch.stream}
     )}
+    {id mutate.layout-override, covered_rules (
+        mutate.layout-override
+    ), covered_claims (
+        {impl_name swift, rule mutate.layout-override}
+    )}
 )
 
 onboarding {kind @init, phase 4}
