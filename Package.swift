@@ -18,15 +18,10 @@ let package = Package(
             dependencies: [
                 "TISKit",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            path: "Sources/Commands"
+            ]
         ),
         .executableTarget(name: "tisutil", dependencies: ["TISUtilCommands"]),
         .testTarget(name: "TISKitTests", dependencies: ["TISKit"]),
-        .testTarget(
-            name: "TISUtilCommandsTests",
-            dependencies: ["TISUtilCommands", "TISKit"],
-            path: "Tests/CommandsTests"
-        ),
+        .testTarget(name: "TISUtilCommandsTests", dependencies: ["TISUtilCommands", "TISKit"]),
     ]
 )
