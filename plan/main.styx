@@ -65,6 +65,14 @@ children (
                     swift ([spec:tis:req:kit.list] [spec:tis:req:kit.current] [spec:tis:req:kit.lookup])
                 }
                 deps (kit.model)
+                log (
+                    {
+                        at 2026-10-19T11:58:31.003969Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+                )
             }
         )
     }

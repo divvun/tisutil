@@ -1,3 +1,3 @@
-import TisutilCommands
+import TISUtilCommands
 
-Tisutil.main()
+TISUtil.main()

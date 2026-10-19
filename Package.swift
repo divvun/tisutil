@@ -14,14 +14,19 @@ let package = Package(
     targets: [
         .target(name: "TISKit"),
         .target(
-            name: "TisutilCommands",
+            name: "TISUtilCommands",
             dependencies: [
                 "TISKit",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ]
+            ],
+            path: "Sources/Commands"
         ),
-        .executableTarget(name: "tisutil", dependencies: ["TisutilCommands"]),
+        .executableTarget(name: "tisutil", dependencies: ["TISUtilCommands"]),
         .testTarget(name: "TISKitTests", dependencies: ["TISKit"]),
-        .testTarget(name: "TisutilCommandsTests", dependencies: ["TisutilCommands", "TISKit"]),
+        .testTarget(
+            name: "TISUtilCommandsTests",
+            dependencies: ["TISUtilCommands", "TISKit"],
+            path: "Tests/CommandsTests"
+        ),
     ]
 )
