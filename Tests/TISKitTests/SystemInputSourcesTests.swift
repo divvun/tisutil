@@ -14,7 +14,10 @@ private let system = SystemInputSources()
     #expect(!enabled.isEmpty)
     #expect(enabled.allSatisfy { $0.isEnabled == true })
     #expect(installed.count >= enabled.count)
-    #expect(enabled.contains { $0.id == current.id })
+    #expect(
+        installed.contains { $0.id == current.id },
+        "current \(current.id ?? "nil") is not among the installed sources"
+    )
 }
 
 // [spec:tis:req:kit.current/test]

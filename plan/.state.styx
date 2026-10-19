@@ -1,6 +1,6 @@
 schema_version 7
 
-last_sync_at 2026-10-19T11:57:55.497294Z
+last_sync_at 2026-10-19T12:04:14.429028Z
 
 rule_versions (
     {id cli.exit-codes, version 0}
@@ -16,6 +16,7 @@ rule_versions (
     {id kit.input-source, version 0}
     {id kit.list, version 0}
     {id kit.lookup, version 0}
+    {id kit.main-thread, version 0}
     {id kit.property-snapshot, version 0}
     {id mutate.enable-disable, version 0}
     {id mutate.layout-override, version 0}
@@ -34,6 +35,7 @@ rule_versions (
 
 assertions (
     {id kit.package, kind @complete, author "brendan@necessary.nu", at 2026-10-19T11:55:40.062771Z}
+    {id query, kind @doing, author "brendan@necessary.nu", at 2026-10-19T12:04:46.150058Z}
 )
 
 impl_evidence (
@@ -50,6 +52,22 @@ impl_evidence (
         {id cli.json-shape, version 0}
         {id cli.output-modes, version 0}
     )}
+    {id kit.enumerate, covered_rules (
+        kit.current
+        kit.list
+        kit.lookup
+        kit.main-thread
+    ), covered_claims (
+        {impl_name swift, rule kit.current}
+        {impl_name swift, rule kit.list}
+        {impl_name swift, rule kit.lookup}
+        {impl_name swift, rule kit.main-thread}
+    ), rule_versions_seen (
+        {id kit.current, version 0}
+        {id kit.list, version 0}
+        {id kit.lookup, version 0}
+        {id kit.main-thread, version 0}
+    )}
     {id kit.model, covered_rules (
         kit.category-type
         kit.errors
@@ -65,17 +83,6 @@ impl_evidence (
         {id kit.errors, version 0}
         {id kit.input-source, version 0}
         {id kit.property-snapshot, version 0}
-    )}
-    {id kit.enumerate, covered_rules (
-        kit.current
-        kit.list
-        kit.lookup
-        kit.main-thread
-    ), covered_claims (
-        {impl_name swift, rule kit.current}
-        {impl_name swift, rule kit.list}
-        {impl_name swift, rule kit.lookup}
-        {impl_name swift, rule kit.main-thread}
     )}
 )
 

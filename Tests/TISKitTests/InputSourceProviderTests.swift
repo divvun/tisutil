@@ -78,6 +78,16 @@ private let sources = FixedInputSources(installed: [abc, sme, kotoeri, palette])
     #expect(try list("ja") == [kotoeri])
 }
 
+// [spec:tis:req:kit.list/test]
+@Test @MainActor func languageFilterAcceptsICUStyleTags() throws {
+    let hindiLatin = InputSource(id: "com.example.hi-latn", languages: ["hi_Latn"], isEnabled: true)
+    let sources = FixedInputSources(installed: [hindiLatin])
+
+    #expect(try sources.list(matching: InputSourceFilter(language: "hi")) == [hindiLatin])
+    #expect(try sources.list(matching: InputSourceFilter(language: "hi-Latn")) == [hindiLatin])
+    #expect(try sources.list(matching: InputSourceFilter(language: "hi_Latn")) == [hindiLatin])
+}
+
 // [spec:tis:req:kit.lookup/test]
 @Test @MainActor func lookupSearchesDisabledSources() throws {
     #expect(try sources.source(id: kotoeri.id!) == kotoeri)

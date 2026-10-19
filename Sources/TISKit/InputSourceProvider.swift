@@ -61,12 +61,17 @@ public struct InputSourceFilter: Hashable, Sendable {
 
 extension InputSource {
     func supports(language tag: String) -> Bool {
-        let tag = tag.lowercased()
+        let tag = bcp47(tag)
         return languages?.contains {
-            let candidate = $0.lowercased()
+            let candidate = bcp47($0)
             return candidate == tag || candidate.hasPrefix(tag + "-")
         } ?? false
     }
+}
+
+/// TIS reports some languages in ICU form (`hi_Latn`), not BCP 47 (`hi-Latn`).
+private func bcp47(_ tag: String) -> String {
+    tag.lowercased().replacingOccurrences(of: "_", with: "-")
 }
 
 extension InputSourceProvider {

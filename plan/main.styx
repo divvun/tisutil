@@ -110,6 +110,14 @@ children (
             swift ([spec:tis:req:query.list] [spec:tis:req:query.current] [spec:tis:req:query.show])
         }
         deps (kit.enumerate cli)
+        log (
+            {
+                at 2026-10-19T12:04:46.150058Z
+                author "brendan@necessary.nu"
+                kind @status
+                text "Todo → Doing (nplan start)"
+            }
+        )
     }
 
     {
