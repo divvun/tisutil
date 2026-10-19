@@ -25,6 +25,7 @@ public final class FixedInputSources: InputSourceProvider {
     /// Sources that `register(url:)` installs for each URL.
     public var registrations: [URL: [InputSource]] = [:]
     public private(set) var registeredURLs: [URL] = []
+    public var layoutIDAliases = LayoutIDAliases.none
 
     nonisolated public init(
         installed: [InputSource],

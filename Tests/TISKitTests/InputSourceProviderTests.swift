@@ -88,28 +88,47 @@ private let sources = FixedInputSources(installed: [abc, sme, kotoeri, palette])
     #expect(try sources.list(matching: InputSourceFilter(language: "hi_Latn")) == [hindiLatin])
 }
 
-// [spec:tis:req:kit.lookup+1/test]
+// [spec:tis:req:kit.lookup+2/test]
 @Test @MainActor func lookupSearchesDisabledSources() throws {
     #expect(try sources.source(id: kotoeri.id!) == kotoeri)
 }
 
-// [spec:tis:req:kit.lookup+1/test]
-@Test @MainActor func lookupAcceptsTheOtherFormOfABundledLayoutID() throws {
-    let modern = InputSource(id: "so.example.layouts.keylayout.sv", isEnabled: true)
-    let legacy = InputSource(id: "so.example.layouts.sv", isEnabled: true)
+// [spec:tis:req:kit.lookup+2/test]
+@Test @MainActor func lookupAcceptsTheOtherIDOfABundledLayout() throws {
+    var aliases = LayoutIDAliases()
+    aliases.add(
+        bundleID: "org.sil.ukelele.keyboardlayout.workman",
+        layouts: ["Workman-P Extended": "org.sil.ukelele.keyboardlayout.workman.workman-pextended"]
+    )
+    let generated = InputSource(
+        id: "org.sil.ukelele.keyboardlayout.workman.keylayout.Workman-PExtended",
+        isEnabled: true
+    )
+    let declared = InputSource(
+        id: "org.sil.ukelele.keyboardlayout.workman.workman-pextended",
+        isEnabled: true
+    )
 
-    let onlyLegacy = FixedInputSources(installed: [legacy])
-    #expect(try onlyLegacy.source(id: "so.example.layouts.keylayout.sv") == legacy)
+    let onlyDeclared = FixedInputSources(installed: [declared])
+    onlyDeclared.layoutIDAliases = aliases
+    #expect(try onlyDeclared.source(id: generated.id!) == declared)
 
-    let onlyModern = FixedInputSources(installed: [modern])
-    #expect(try onlyModern.source(id: "so.example.layouts.sv") == modern)
+    let onlyGenerated = FixedInputSources(installed: [generated])
+    onlyGenerated.layoutIDAliases = aliases
+    #expect(try onlyGenerated.source(id: declared.id!) == generated)
 
-    let both = FixedInputSources(installed: [legacy, modern])
-    #expect(try both.source(id: "so.example.layouts.keylayout.sv") == modern)
-    #expect(try both.source(id: "so.example.layouts.sv") == legacy)
+    let both = FixedInputSources(installed: [declared, generated])
+    both.layoutIDAliases = aliases
+    #expect(try both.source(id: generated.id!) == generated)
+    #expect(try both.source(id: declared.id!) == declared)
+
+    let withoutAliases = FixedInputSources(installed: [declared])
+    #expect(throws: TISError.notFound(id: generated.id!)) {
+        try withoutAliases.source(id: generated.id!)
+    }
 }
 
-// [spec:tis:req:kit.lookup+1/test]
+// [spec:tis:req:kit.lookup+2/test]
 @Test @MainActor func lookupMatchesExactlyAndReportsTheID() {
     #expect(throws: TISError.notFound(id: "com.apple.keylayout")) {
         try sources.source(id: "com.apple.keylayout")

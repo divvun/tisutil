@@ -1,6 +1,6 @@
 schema_version 7
 
-last_sync_at 2026-10-19T12:23:13.121351Z
+last_sync_at 2026-10-19T12:26:11.89532Z
 
 rule_versions (
     {id cli.exit-codes, version 0}
@@ -8,7 +8,7 @@ rule_versions (
     {id cli.output-modes, version 0}
     {id install.enable, version 0}
     {id install.kind-detect, version 0}
-    {id install.place, version 0}
+    {id install.place, version 1}
     {id install.register, version 0}
     {id kit.category-type, version 0}
     {id kit.current, version 0}
@@ -50,6 +50,16 @@ impl_evidence (
         {id cli.exit-codes, version 0}
         {id cli.json-shape, version 0}
         {id cli.output-modes, version 0}
+    )}
+    {id install.place, covered_rules (
+        install.enable
+        install.place
+    ), covered_claims (
+        {impl_name swift, rule install.enable}
+        {impl_name swift, rule install.place}
+    ), rule_versions_seen (
+        {id install.enable, version 0}
+        {id install.place, version 1}
     )}
     {id install.register, covered_rules (
         install.kind-detect
@@ -131,13 +141,6 @@ impl_evidence (
         {id session.console-user, version 0}
         {id session.privilege, version 0}
         {id session.reexec, version 0}
-    )}
-    {id install.place, covered_rules (
-        install.enable
-        install.place
-    ), covered_claims (
-        {impl_name swift, rule install.enable}
-        {impl_name swift, rule install.place}
     )}
 )
 

@@ -67,6 +67,9 @@ public struct SystemInputSources: InputSourceProvider {
         try check(TISRegisterInputSource(url as CFURL), "TISRegisterInputSource")
     }
 
+    // [spec:tis:req:kit.lookup+2]
+    public var layoutIDAliases: LayoutIDAliases { .installed }
+
     /// Filtering `TISCreateInputSourceList` by `kTISPropertyInputSourceID`
     /// misses bundled layouts that TIS currently reports under their other ID,
     /// so this matches against the full list instead.
@@ -75,6 +78,7 @@ public struct SystemInputSources: InputSourceProvider {
             let source = firstMatch(
                 list as! [TISInputSource],
                 id: id,
+                aliases: layoutIDAliases,
                 idOf: { property(of: $0, kTISPropertyInputSourceID) as? String }
             )
         else {

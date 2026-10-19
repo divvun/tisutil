@@ -65,9 +65,7 @@ public struct InstallableItem: Equatable, Sendable {
     // [spec:tis:req:install.kind-detect]
     static func bundleKind(at url: URL) -> Kind? {
         let contents = url.appending(path: "Contents")
-        guard let data = try? Data(contentsOf: contents.appending(path: "Info.plist")),
-            let info = try? PropertyListSerialization.propertyList(from: data, format: nil)
-                as? [String: Any],
+        guard let info = infoPlist(ofBundleAt: url),
             let bundleID = info["CFBundleIdentifier"] as? String
         else {
             return nil

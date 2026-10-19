@@ -105,6 +105,10 @@ private func fixture(enabled: Bool = false, selected: Bool = false) -> FixedInpu
         )
     ])
     sources.idsAfterChange = ["so.example.layouts.keylayout.sv": "so.example.layouts.sv"]
+    sources.layoutIDAliases.add(
+        bundleID: "so.example.layouts",
+        layouts: ["sv": "so.example.layouts.sv"]
+    )
 
     let selected = try sources.apply(.select, to: "so.example.layouts.keylayout.sv")
     #expect(selected.id == "so.example.layouts.sv")
