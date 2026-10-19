@@ -9,7 +9,7 @@ public struct TISUtil: ParsableCommand {
         discussion: ExitStatus.helpText,
         subcommands: [
             List.self, Current.self, Show.self, Enable.self, Disable.self, Select.self,
-            Deselect.self, Register.self, Install.self,
+            Deselect.self, Register.self, Install.self, Watch.self,
         ]
     )
 
@@ -19,7 +19,7 @@ public struct TISUtil: ParsableCommand {
     public static func main() {
         do {
             var command = try parseAsRoot()
-            if let command = command as? any InputSourceCommand,
+            if let command = command as? any SessionCommand,
                 let status = try command.dispatch(in: .system())
             {
                 Foundation.exit(status)

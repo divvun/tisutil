@@ -298,6 +298,14 @@ children (
             swift ([spec:tis:req:watch.stream] [spec:tis:req:watch.json-lines])
         }
         deps (kit.enumerate cli)
+        log (
+            {
+                at 2026-10-19T13:37:02.904309Z
+                author "brendan@necessary.nu"
+                kind @status
+                text "Todo → Doing (nplan start)"
+            }
+        )
     }
 
     {

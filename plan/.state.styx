@@ -152,6 +152,13 @@ impl_evidence (
     ), covered_claims (
         {impl_name swift, rule mutate.force-enable}
     )}
+    {id watch, covered_rules (
+        watch.json-lines
+        watch.stream
+    ), covered_claims (
+        {impl_name swift, rule watch.json-lines}
+        {impl_name swift, rule watch.stream}
+    )}
 )
 
 onboarding {kind @init, phase 4}
