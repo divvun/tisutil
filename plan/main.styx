@@ -403,6 +403,29 @@ children (
                 priority 3
                 kind @docs
                 deps (dictation.status)
+                sealed true
+                log (
+                    {
+                        at 2026-10-20T13:23:27.443433Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+
+                    {
+                        at 2026-10-20T13:29:48.902284Z
+                        author "brendan@necessary.nu"
+                        kind @decision
+                        text "Findings (macOS 26.5, captured while the operator toggled Dictation and changed its language in System Settings): on/off is `Dictation Enabled` in com.apple.assistant.support, written by assistantd through AssistantServices' private AFPreferences (setDictationIsEnabled:/dictationIsEnabled, verified readable). Turning it on also sets AppleDictationAutoEnable=1 in com.apple.HIToolbox via HIToolbox. The language is DictationIMLocaleIdentifier in com.apple.speech.recognition.AppleSpeechRecognition.prefs; VisibleNetworkSRLocaleIdentifiers lists the offered languages. TSMSelectDictationLanguage acts only on the focused document's session. Enabling in Settings shows a Siri & Dictation data-sharing prompt; AFPreferences setSuppressDictationOptIn: exists and is not to be used. Details in docs/spec/dictation.md."
+                    }
+
+                    {
+                        at 2026-10-20T13:29:54.404594Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Doing → Done (nplan complete)"
+                    }
+                )
             }
 
             {
