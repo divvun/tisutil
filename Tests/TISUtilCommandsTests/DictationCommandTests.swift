@@ -81,6 +81,22 @@ private func command<C: ParsableCommand>(_ type: C.Type, _ arguments: [String]) 
     #expect(array[0]["installed"] as? Bool == true)
 }
 
+// [spec:tis:req:dictation.enable/test]
+@Test @MainActor func enableAndDisableCommandsChangeDictation() throws {
+    let settings = FixedDictationSettings(enabled: false, autoEnable: false, language: "en_AU")
+    let sources = FixedInputSources(installed: [dictation])
+
+    let enabled = try command(DictationEnableCommand.self, ["enable"])
+        .execute(provider: sources, settings: settings)
+    #expect(enabled.stdout.contains("Dictation:     on"))
+    #expect(enabled.stdout.contains("Auto-enable:   on"))
+
+    let disabled = try command(DictationDisableCommand.self, ["disable", "--timeout", "1"])
+        .execute(provider: sources, settings: settings)
+    #expect(disabled.stdout.contains("Dictation:     off"))
+    #expect(ExitStatus(for: DictationError.notApplied("dictation", expected: true)) == .failure)
+}
+
 // [spec:tis:req:dictation.auto-enable/test]
 @Test @MainActor func autoEnablePrintsOrSetsTheSetting() throws {
     let settings = FixedDictationSettings(enabled: false, autoEnable: true)

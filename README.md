@@ -98,12 +98,14 @@ The command still checks that the source became enabled.
 ```sh
 tisutil dictation status        # on/off, language, input source, auto-enable
 tisutil dictation languages     # locales and whether their on-device models are installed
+tisutil dictation enable         # or disable
 tisutil dictation auto-enable on
 ```
 
-`tisutil` can report whether dictation is on, but cannot turn it on or off:
-macOS accepts that change only from its own entitled processes, such as
-System Settings.
+macOS reserves its own dictation switch for entitled Apple processes, so
+`tisutil dictation enable` and `disable` write the dictation preference
+directly. System Settings and dictation itself pick up the change. This is
+undocumented behaviour that a future macOS could change.
 
 ### Input source IDs
 

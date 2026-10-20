@@ -452,6 +452,24 @@ children (
                     }
                 )
             }
+
+            {
+                id dictation.enable
+                title "dictation enable/disable by writing Dictation Enabled"
+                priority 3
+                implements {
+                    swift ([spec:tis:req:dictation.enable])
+                }
+                deps (dictation.toggle)
+                log (
+                    {
+                        at 2026-10-20T13:52:29.68639Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+                )
+            }
         )
     }
 )

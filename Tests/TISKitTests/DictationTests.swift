@@ -75,6 +75,49 @@ private let dictationSource = InputSource(
     }
 }
 
+// [spec:tis:req:dictation.enable/test]
+@Test @MainActor func enablingDictationAlsoTurnsOnAutoEnable() throws {
+    let settings = FixedDictationSettings(enabled: false, autoEnable: false)
+
+    try settings.turnDictation(on: true)
+    #expect(try settings.isEnabled())
+    #expect(try settings.autoEnable())
+    #expect(settings.requests == ["enable", "auto-enable on"])
+
+    try settings.turnDictation(on: false)
+    #expect(try !settings.isEnabled())
+    #expect(try settings.autoEnable())
+}
+
+// [spec:tis:req:dictation.enable/test]
+@Test @MainActor func dictationAlreadyInTheRequestedStateIsLeftAlone() throws {
+    let settings = FixedDictationSettings(enabled: true, autoEnable: false)
+    try settings.turnDictation(on: true)
+    #expect(settings.requests.isEmpty)
+}
+
+// [spec:tis:req:dictation.enable/test]
+@Test @MainActor func dictationChangesAreWaitedForUntilTheTimeout() throws {
+    let later = FixedDictationSettings(enabled: false, autoEnable: true)
+    later.pausesBeforeApplying = 3
+    try later.turnDictation(on: true)
+    #expect(later.pauses == 3)
+
+    let never = FixedDictationSettings(enabled: false, autoEnable: true)
+    never.appliesChanges = false
+    #expect(throws: DictationError.notApplied("dictation", expected: true)) {
+        try never.turnDictation(on: true, timeout: 1)
+    }
+    #expect(never.pauses == 4)
+}
+
+// [spec:tis:req:dictation.enable/test]
+@Test @MainActor func dictationThatCannotBeReadIsNamed() {
+    #expect(throws: DictationError.unavailable("AFPreferences")) {
+        try FixedDictationSettings(enabled: nil, autoEnable: true).turnDictation(on: true)
+    }
+}
+
 // [spec:tis:req:dictation.auto-enable/test]
 @Test @MainActor func autoEnableIsSetAndCheckedOnce() throws {
     let settings = FixedDictationSettings(enabled: false, autoEnable: true)

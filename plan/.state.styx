@@ -1,14 +1,15 @@
 schema_version 7
 
-last_sync_at 2026-10-20T13:23:27.407894Z
+last_sync_at 2026-10-20T13:46:08.359922Z
 
 rule_versions (
     {id cli.exit-codes, version 0}
     {id cli.json-shape, version 0}
     {id cli.output-modes, version 0}
+    {id dictation.auto-enable, version 0}
     {id dictation.languages, version 0}
     {id dictation.source, version 0}
-    {id dictation.status, version 0}
+    {id dictation.status, version 1}
     {id install.enable, version 0}
     {id install.kind-detect, version 0}
     {id install.place, version 1}
@@ -75,6 +76,17 @@ impl_evidence (
         {impl_name swift, rule dictation.languages}
         {impl_name swift, rule dictation.source}
         {impl_name swift, rule dictation.status}
+    ), rule_versions_seen (
+        {id dictation.languages, version 0}
+        {id dictation.source, version 0}
+        {id dictation.status, version 1}
+    )}
+    {id dictation.toggle, covered_rules (
+        dictation.auto-enable
+    ), covered_claims (
+        {impl_name swift, rule dictation.auto-enable}
+    ), rule_versions_seen (
+        {id dictation.auto-enable, version 0}
     )}
     {id install.place, covered_rules (
         install.enable
@@ -198,10 +210,10 @@ impl_evidence (
         {id watch.json-lines, version 0}
         {id watch.stream, version 0}
     )}
-    {id dictation.toggle, covered_rules (
-        dictation.auto-enable
+    {id dictation.enable, covered_rules (
+        dictation.enable
     ), covered_claims (
-        {impl_name swift, rule dictation.auto-enable}
+        {impl_name swift, rule dictation.enable}
     )}
 )
 

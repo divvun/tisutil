@@ -8,6 +8,7 @@ struct DictationCommand: ParsableCommand {
         abstract: "Report on and change macOS dictation.",
         subcommands: [
             DictationStatusCommand.self, DictationLanguagesCommand.self,
+            DictationEnableCommand.self, DictationDisableCommand.self,
             DictationAutoEnableCommand.self,
         ]
     )
@@ -82,6 +83,52 @@ struct DictationStatusJSON: Encodable {
         try container.encode(status.source != nil, forKey: .installed)
         try container.encode(status.source.map(InputSourceJSON.init), forKey: .source)
         try container.encode(status.autoEnable, forKey: .autoEnable)
+    }
+}
+
+// [spec:tis:req:dictation.enable]
+struct DictationEnableCommand: DictationSettingsCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "enable",
+        abstract: "Turn dictation on."
+    )
+
+    @OptionGroup var output: OutputOptions
+    @OptionGroup var session: SessionOptions
+    @OptionGroup var waiting: WaitOptions
+
+    @MainActor
+    func execute(provider: some InputSourceProvider, settings: some DictationSettings) throws
+        -> CommandOutput
+    {
+        try settings.turnDictation(on: true, timeout: waiting.timeout)
+        return CommandOutput(
+            stdout: try dictationReport(
+                provider.dictationStatus(settings: settings), json: output.json)
+        )
+    }
+}
+
+// [spec:tis:req:dictation.enable]
+struct DictationDisableCommand: DictationSettingsCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "disable",
+        abstract: "Turn dictation off."
+    )
+
+    @OptionGroup var output: OutputOptions
+    @OptionGroup var session: SessionOptions
+    @OptionGroup var waiting: WaitOptions
+
+    @MainActor
+    func execute(provider: some InputSourceProvider, settings: some DictationSettings) throws
+        -> CommandOutput
+    {
+        try settings.turnDictation(on: false, timeout: waiting.timeout)
+        return CommandOutput(
+            stdout: try dictationReport(
+                provider.dictationStatus(settings: settings), json: output.json)
+        )
     }
 }
 

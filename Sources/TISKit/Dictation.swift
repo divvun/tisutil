@@ -83,12 +83,34 @@ extension DictationError: CustomStringConvertible {
 @MainActor
 public protocol DictationSettings {
     func isEnabled() throws -> Bool
+    func setEnabled(_ enabled: Bool) throws
     func autoEnable() throws -> Bool
     func setAutoEnable(_ on: Bool) throws
     var language: String? { get }
+    /// Lets the system deliver state changes while a change is waited for.
+    func pause(seconds: Double)
 }
 
 extension DictationSettings {
+    // [spec:tis:req:dictation.enable]
+    public func turnDictation(on: Bool, timeout: Double = InputSourceChange.defaultTimeout)
+        throws
+    {
+        guard try isEnabled() != on else { return }
+        try setEnabled(on)
+        if on {
+            try setAutoEnable(true)
+        }
+        var waited = 0.0
+        while try isEnabled() != on {
+            guard waited < timeout else {
+                throw DictationError.notApplied("dictation", expected: on)
+            }
+            pause(seconds: 0.25)
+            waited += 0.25
+        }
+    }
+
     // [spec:tis:req:dictation.auto-enable]
     public func changeAutoEnable(to on: Bool) throws {
         try setAutoEnable(on)
@@ -98,10 +120,11 @@ extension DictationSettings {
     }
 }
 
-/// The current user's dictation settings. Whether dictation is on comes from
-/// the private `AFPreferences` class in AssistantServices, because
+/// The current user's dictation settings. Whether dictation is on is read
+/// through the private `AFPreferences` class in AssistantServices, because
 /// `assistantd` owns that preference.
 // [spec:tis:req:dictation.status+1]
+// [spec:tis:req:dictation.enable]
 // [spec:tis:req:dictation.auto-enable]
 public struct SystemDictationSettings: DictationSettings {
     nonisolated public init() {}
@@ -129,6 +152,21 @@ public struct SystemDictationSettings: DictationSettings {
             preferences, selector)
     }
 
+    /// `assistantd` refuses `AFPreferences` changes from processes without a
+    /// private entitlement, but adopts the preference written directly.
+    // [spec:tis:req:dictation.enable]
+    public func setEnabled(_ enabled: Bool) throws {
+        let domain = "com.apple.assistant.support" as CFString
+        CFPreferencesSetAppValue(
+            "Dictation Enabled" as CFString,
+            enabled ? kCFBooleanTrue : kCFBooleanFalse,
+            domain
+        )
+        guard CFPreferencesAppSynchronize(domain) else {
+            throw TISError.noResult(function: "CFPreferencesAppSynchronize")
+        }
+    }
+
     public func autoEnable() throws -> Bool {
         guard let value = Dictation.autoEnable() else {
             throw DictationError.unavailable("TISGetDictationShouldAutoEnable")
@@ -151,6 +189,10 @@ public struct SystemDictationSettings: DictationSettings {
             "DictationIMLocaleIdentifier" as CFString,
             "com.apple.speech.recognition.AppleSpeechRecognition.prefs" as CFString
         ) as? String
+    }
+
+    public func pause(seconds: Double) {
+        RunLoop.main.run(until: Date().addingTimeInterval(seconds))
     }
 }
 

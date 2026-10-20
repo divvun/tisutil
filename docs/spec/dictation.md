@@ -22,6 +22,18 @@ preferences. These rules cover what `tisutil` reports about it.
 > on-device model is installed and each of its other flags as macOS records
 > them. With `--json` it MUST print one JSON array.
 
+> [spec:tis:req:dictation.enable]
+> `tisutil dictation enable` and `tisutil dictation disable` MUST turn
+> dictation on or off by writing `Dictation Enabled` in the user's
+> `com.apple.assistant.support` preferences through CFPreferences. `enable`
+> MUST also turn auto-enable on, as System Settings does. If dictation is
+> already in the requested state, the command MUST succeed and change
+> nothing. Afterwards it MUST read whether dictation is on through
+> `AFPreferences` (`dictationIsEnabled`) until it matches the request, for up
+> to 60 seconds or the number of seconds given with `--timeout`, and MUST
+> exit with code `1` if it does not. It MUST NOT change whether the user is
+> asked about sharing audio to improve Siri and Dictation.
+
 > [spec:tis:req:dictation.auto-enable]
 > `tisutil dictation auto-enable` MUST print whether dictation auto-enable is
 > on. `tisutil dictation auto-enable on|off` MUST set it through
@@ -47,10 +59,15 @@ Dictation writes. These notes are background for the rules, not rules.
 the private `AFPreferences` class in AssistantServices
 (`setDictationIsEnabled:`), which also offers `dictationIsEnabled`,
 `activeDictationLanguages` and `offlineDictationStatus`. Reading works from
-any process, but `assistantd` refuses changes from a process without the
-private entitlement `com.apple.private.assistant.settings`, so `tisutil` can
-report whether dictation is on but cannot turn it on or off. Writing the
-preference directly would bypass `assistantd`.
+any process, but `assistantd` refuses changes through `AFPreferences` from a
+process without the private entitlement
+`com.apple.private.assistant.settings`.
+
+Writing `Dictation Enabled` directly through CFPreferences does work. System
+Settings shows the new value, dictation starts from the keyboard shortcut,
+and `assistantd` writes the value back as its own the next time dictation is
+used. Using dictation also enables the Dictation input source in TIS, and the
+Dictation input method removes it again when the session ends.
 
 Turning dictation on in System Settings also asks whether to share audio to
 improve Siri and Dictation, and the Dictation input method shows a privacy
