@@ -10,6 +10,7 @@ public struct TISUtil: ParsableCommand {
         subcommands: [
             List.self, Current.self, Show.self, Enable.self, Disable.self, Select.self,
             Deselect.self, Override.self, Register.self, Install.self, Watch.self,
+            DictationCommand.self,
         ]
     )
 

@@ -1,11 +1,14 @@
 schema_version 7
 
-last_sync_at 2026-10-20T13:21:01.286617Z
+last_sync_at 2026-10-20T13:22:30.337222Z
 
 rule_versions (
     {id cli.exit-codes, version 0}
     {id cli.json-shape, version 0}
     {id cli.output-modes, version 0}
+    {id dictation.languages, version 0}
+    {id dictation.source, version 0}
+    {id dictation.status, version 0}
     {id install.enable, version 0}
     {id install.kind-detect, version 0}
     {id install.place, version 1}
@@ -35,6 +38,9 @@ rule_versions (
 )
 
 derived_priorities (
+    {id dictation.investigate, priority 3, derived_at 2026-10-20T13:13:35.910388Z}
+    {id dictation.status, priority 3, derived_at 2026-10-20T13:13:35.910388Z}
+    {id dictation.toggle, priority 3, derived_at 2026-10-20T13:13:35.910388Z}
     {id docs, priority 3, derived_at 2026-10-19T12:49:03.344033Z}
     {id mutate.force-enable, priority 3, derived_at 2026-10-19T13:10:12.814164Z}
     {id mutate.force-enable-spec, priority 3, derived_at 2026-10-19T13:10:12.814164Z}
@@ -181,6 +187,15 @@ impl_evidence (
     ), rule_versions_seen (
         {id watch.json-lines, version 0}
         {id watch.stream, version 0}
+    )}
+    {id dictation.status, covered_rules (
+        dictation.languages
+        dictation.source
+        dictation.status
+    ), covered_claims (
+        {impl_name swift, rule dictation.languages}
+        {impl_name swift, rule dictation.source}
+        {impl_name swift, rule dictation.status}
     )}
 )
 

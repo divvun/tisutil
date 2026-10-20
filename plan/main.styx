@@ -373,4 +373,44 @@ children (
             }
         )
     }
+
+    {
+        id dictation
+        title "Dictation status, languages and settings"
+        kind @feat
+        children (
+            {
+                id dictation.status
+                title "dictation status and dictation languages"
+                priority 3
+                implements {
+                    swift ([spec:tis:def:dictation.source] [spec:tis:req:dictation.status] [spec:tis:req:dictation.languages])
+                }
+                deps (kit.enumerate cli)
+                log (
+                    {
+                        at 2026-10-20T13:14:10.215428Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+                )
+            }
+
+            {
+                id dictation.investigate
+                title "Find what the Keyboard settings dictation toggle and language picker change, and specify enable/disable"
+                priority 3
+                kind @docs
+                deps (dictation.status)
+            }
+
+            {
+                id dictation.toggle
+                title "dictation enable/disable and auto-enable on/off"
+                priority 3
+                deps (dictation.investigate mutate.state)
+            }
+        )
+    }
 )
