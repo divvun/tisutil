@@ -33,7 +33,7 @@ extension InputSourceProvider {
     // [spec:tis:req:mutate.enable-disable+1]
     // [spec:tis:req:mutate.select]
     // [spec:tis:req:mutate.verify+2]
-    // [spec:tis:req:mutate.force-enable+1]
+    // [spec:tis:req:mutate.force-enable+2]
     public func apply(
         _ change: InputSourceChange,
         to id: String,

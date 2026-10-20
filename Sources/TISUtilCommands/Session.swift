@@ -5,8 +5,9 @@ import TISKit
 struct SessionOptions: ParsableArguments {
     @Option(
         help: """
-            Act on this logged-in user's input sources. Needs root unless it is you. \
-            As root, the default is the console user.
+            Act on this user's input sources. Needs root unless it is you. \
+            As root, the default is the console user. Without a login session, \
+            enable and disable record changes for the next login.
             """
     )
     var user: String?
@@ -27,7 +28,10 @@ enum SessionError: DiagnosedError, Equatable {
         case .noSession(let name?): "\(name) has no login session"
         case .notPermitted(let name): "acting on \(name)'s input sources needs root"
         case .needsApproval(let id, let user):
-            "\(id) is a third-party input source; \(user) has to enable it after logging in"
+            """
+            \(id) is a third-party input source; use --force to record enablement for \
+            \(user)'s next login, or enable it after logging in
+            """
         case .noPreferenceEntry(let id):
             "\(id) cannot be enabled or disabled through preferences"
         }

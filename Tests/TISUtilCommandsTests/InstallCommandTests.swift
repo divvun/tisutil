@@ -28,7 +28,7 @@ private let placed = InstallableItem(
 )
 
 // [spec:tis:req:install.place+1/test]
-// [spec:tis:req:mutate.force-enable+1/test]
+// [spec:tis:req:mutate.force-enable+2/test]
 @Test(arguments: [false, true]) @MainActor
 func installCopiesRegistersAndActivates(force: Bool) throws {
     let source = FileManager.default.temporaryDirectory.appending(
@@ -61,7 +61,7 @@ func installCopiesRegistersAndActivates(force: Bool) throws {
         ])
 }
 
-// [spec:tis:req:mutate.force-enable+1/test]
+// [spec:tis:req:mutate.force-enable+2/test]
 @Test func systemInstallForwardsForceToRegistration() throws {
     let command = try install([
         "--system", "--enable", "--select", "--force", "--timeout", "3", "/tmp/sme.bundle",

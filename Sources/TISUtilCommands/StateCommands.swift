@@ -1,7 +1,7 @@
 import ArgumentParser
 import TISKit
 
-// [spec:tis:req:mutate.force-enable+1]
+// [spec:tis:req:mutate.force-enable+2]
 struct EnablementOptions: ParsableArguments {
     @Flag(help: "Skip the macOS approval sheet when enabling an input source.")
     var force = false
@@ -35,7 +35,7 @@ extension StateCommand {
     var force: Bool { false }
 
     // [spec:tis:req:mutate.verify+2]
-    // [spec:tis:req:mutate.force-enable+1]
+    // [spec:tis:req:mutate.force-enable+2]
     @MainActor
     func execute(provider: some InputSourceProvider) throws -> CommandOutput {
         let source = try provider.apply(
@@ -52,7 +52,7 @@ extension StateCommand {
 private let idHelp = ArgumentHelp("The input source ID, for example com.apple.keylayout.ABC.")
 
 // [spec:tis:req:mutate.enable-disable+1]
-// [spec:tis:req:mutate.force-enable+1]
+// [spec:tis:req:mutate.force-enable+2]
 struct Enable: StateCommand {
     static let configuration = CommandConfiguration(
         abstract: "Enable an input source. Succeeds without change if it is already enabled."
@@ -105,7 +105,7 @@ struct Select: StateCommand {
     @Argument(help: idHelp)
     var id: String
 
-    // [spec:tis:req:mutate.force-enable+1]
+    // [spec:tis:req:mutate.force-enable+2]
     func validate() throws {
         if force && !enablingFirst {
             throw ValidationError("--force requires --enable.")
@@ -159,7 +159,7 @@ struct Override: InputSourceCommand {
 extension StateCommand {
     /// As root, an enable or disable for a user without a login session is
     /// recorded in their preferences instead of failing.
-    // [spec:tis:req:session.prefs-fallback+1]
+    // [spec:tis:req:session.prefs-fallback+2]
     func dispatch(in context: SessionContext) throws -> Int32? {
         do {
             return try reexecIfNeeded(user: session.user, in: context)
@@ -173,27 +173,31 @@ extension StateCommand {
                     id: id,
                     user: user,
                     provider: SystemInputSources(),
-                    store: UserPreferencesStore()
+                    store: UserPreferencesStore(),
+                    thirdPartyStore: UserPreferencesStore.thirdParty
                 ).emit()
             }
             return 0
         }
     }
 
-    // [spec:tis:req:session.prefs-fallback+1]
+    // [spec:tis:req:session.prefs-fallback+2]
+    // [spec:tis:req:mutate.force-enable+2]
     @MainActor
     func changeWithoutSession(
         enable: Bool,
         id: String,
         user: UserAccount,
         provider: some InputSourceProvider,
-        store: some EnabledSourcesStore
+        store: some EnabledSourcesStore,
+        thirdPartyStore: some EnabledSourcesStore
     ) throws -> CommandOutput {
         let found = try provider.preferenceSource(id: id)
-        guard found.isFromSystem else {
+        guard found.isFromSystem || !enable || force else {
             throw SessionError.needsApproval(id: id, user: user.name)
         }
         guard let entry = found.entry else { throw SessionError.noPreferenceEntry(id: id) }
+        let store: any EnabledSourcesStore = found.isFromSystem ? store : thirdPartyStore
         let entries = store.entries(for: user.name)
         try store.setEntries(entry.applied(to: entries, enable: enable), for: user.name)
         return CommandOutput(

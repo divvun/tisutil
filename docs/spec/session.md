@@ -17,19 +17,24 @@ state from there.
 > MUST forward the arguments, stdout and stderr, and MUST exit with the
 > child's exit status.
 
-> [spec:tis:req:session.prefs-fallback+1]
+> [spec:tis:req:session.prefs-fallback+2]
 > When `tisutil` runs as root and the user named with `--user` has no GUI
-> session, `enable` and `disable` of an input source that comes with macOS
-> MUST fall back to changing `AppleEnabledInputSources` in that user's
-> `com.apple.HIToolbox` preferences. The change MUST go through `cfprefsd`
-> (CFPreferences), not by editing the plist file directly, so that the
-> preferences cache does not overwrite it. The command MUST report that the
-> change applies at the user's next login.
+> session, `enable` and `disable` MUST fall back to changing that user's
+> enabled-source preferences. Sources that come with macOS MUST use
+> `AppleEnabledInputSources` in `com.apple.HIToolbox`; third-party sources
+> MUST use `AppleEnabledThirdPartyInputSources` in `com.apple.inputsources`.
+> The change MUST go through `cfprefsd` (CFPreferences), not by editing the
+> plist file directly, so that the preferences cache does not overwrite it.
+> Existing unrelated entries MUST be preserved, and enabling an existing
+> entry MUST NOT add a duplicate. The command MUST report that the change
+> applies at the user's next login.
 >
-> A third-party input source needs the user's own approval. For one of
-> those, with or without `--force`, `tisutil` MUST NOT change any
-> preference, and MUST exit with code `77`, saying that the user has to
-> enable it after logging in.
+> Enabling a third-party source MUST require `--force` when the user has no
+> GUI session. With `--force`, the command MUST record the enablement without
+> requiring user approval. Without it, the command MUST exit with code `77`
+> without changing preferences, explaining that `--force` records enablement
+> for the next login or the user can enable it after logging in. Disabling a
+> third-party source MUST NOT require `--force` or user approval.
 
 > [spec:tis:req:session.privilege]
 > A command that targets a user other than the one running `tisutil` MUST

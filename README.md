@@ -72,9 +72,14 @@ available at the next login, and the command exits 0 unless `--enable` or
 
 `sudo tisutil enable --user <name> <id>` (and `disable`) for a user who is not
 logged in records the change in that user's preferences, to take effect at
-their next login. This works only for input sources that come with macOS.
-Third-party sources need the user's own approval, so they exit 77 until the
-user logs in and enables them.
+their next login. To enable a third-party source this way, add `--force`:
+
+```sh
+sudo tisutil enable --force --user <name> <id>
+```
+
+Without `--force`, offline third-party enablement exits 77. Disabling a source
+for the next login works for both Apple and third-party sources.
 
 ### Third-party input source approval
 

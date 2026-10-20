@@ -53,7 +53,7 @@ public struct SystemInputSources: InputSourceProvider {
 
     // [spec:tis:req:mutate.enable-disable+1]
     // [spec:tis:req:mutate.select]
-    // [spec:tis:req:mutate.force-enable+1]
+    // [spec:tis:req:mutate.force-enable+2]
     public func requestChange(_ change: InputSourceChange, id: String) throws {
         let source = try reference(id: id)
         switch change {
@@ -84,7 +84,7 @@ public struct SystemInputSources: InputSourceProvider {
     /// Reads private TIS properties: the layout name and number that
     /// `AppleEnabledInputSources` records, and whether the source comes with
     /// macOS. Without them a source is treated as third-party.
-    // [spec:tis:req:session.prefs-fallback+1]
+    // [spec:tis:req:session.prefs-fallback+2]
     public func preferenceSource(id: String) throws -> PreferenceSource {
         let reference = try reference(id: id)
         let source = InputSource(reference)
@@ -142,7 +142,7 @@ func privateTISKey(_ name: String) -> CFString? {
         .takeUnretainedValue()
 }
 
-// [spec:tis:req:mutate.force-enable+1]
+// [spec:tis:req:mutate.force-enable+2]
 @MainActor
 func enableWithoutPrompt(
     _ source: TISInputSource,

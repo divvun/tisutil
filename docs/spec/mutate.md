@@ -27,13 +27,18 @@ Commands that change which input sources are enabled or selected.
 > enable MUST report that the source is still not enabled without suggesting
 > that a prompt was shown.
 
-> [spec:tis:req:mutate.force-enable+1]
-> `tisutil enable --force <id>` MUST request enablement without the macOS
-> approval sheet by resolving the private `TISEnableInputSourceWithOptions`
-> function at runtime and passing option bit `2`. Without `--force`, commands
+> [spec:tis:req:mutate.force-enable+2]
+> In a login session, `tisutil enable --force <id>` MUST request enablement
+> without the macOS approval sheet by resolving the private
+> `TISEnableInputSourceWithOptions` function at runtime and passing option
+> bit `2`. Without `--force`, commands
 > MUST use the public enable function. An already enabled source MUST succeed
 > without an enable call. If the private function is unavailable, the command
 > MUST fail with exit code `1` and name the missing function.
+>
+> For a target user without a GUI session, `enable --force` MUST record
+> enablement through the preference fallback in `session.prefs-fallback`,
+> including for third-party sources, without requiring user approval.
 >
 > `select --enable`, `register --enable`, `register --select`,
 > `install --enable` and `install --select` MUST accept `--force` and use it

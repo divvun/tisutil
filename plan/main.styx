@@ -236,12 +236,12 @@ children (
 
             {
                 id session.prefs-fallback
-                title "Enable/disable through HIToolbox preferences when the user has no session"
+                title "Enable/disable through preferences when the user has no session"
                 priority 2
                 implements {
                     swift ([spec:tis:req:session.prefs-fallback])
                 }
-                deps (session.reexec mutate.state)
+                deps (session.reexec mutate.state mutate.force-enable)
                 log (
                     {
                         at 2026-10-19T12:47:47.440409Z
@@ -262,6 +262,22 @@ children (
                         author "brendan@necessary.nu"
                         kind @unblock
                         text "Rule revised to session.prefs-fallback+1: the preference fallback covers only input sources that come with macOS (kTISPropertyInputSourceIsFromSystem), whose entries need no user approval. Third-party sources exit 77 without any preference change, with or without --force."
+                    }
+
+                    {
+                        at 2026-10-20T13:13:35.778919Z
+                        author "brendan@necessary.nu"
+                        kind @errata
+                        text "The operator rejected the Apple-only restriction and explicitly requested that --force enable third-party input sources for logged-out users. Revise session.prefs-fallback to write third-party enablement to com.apple.inputsources / AppleEnabledThirdPartyInputSources through CFPreferences when --force is given. Third-party disablement needs no approval. The earlier statement that offline force enablement must be refused is withdrawn."
+                        after_done true
+                    }
+
+                    {
+                        at 2026-10-20T13:17:39.699475Z
+                        author "brendan@necessary.nu"
+                        kind @note
+                        text "Implemented offline third-party enable --force using com.apple.inputsources / AppleEnabledThirdPartyInputSources; third-party disablement also uses this store without needing --force. Updated both affected rules to v2 and refreshed all annotations, README and --user help. Regression tests cover keyboard layouts, input methods, input modes and palettes, preserving unrelated entries, avoiding duplicates, selecting the correct store and retaining the no-force diagnostic. nplan check passes: formatting and all 128 tests. Live input-source state was only read; persistence tests use temporary preference domains."
+                        after_done true
                     }
                 )
             }

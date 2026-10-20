@@ -3,7 +3,7 @@ import Testing
 
 @testable import TISKit
 
-// [spec:tis:req:session.prefs-fallback+1/test]
+// [spec:tis:req:session.prefs-fallback+2/test]
 @Test func keyboardLayoutEntriesMatchWhatMacOSRecords() {
     let swedishPro = InputSource(id: "com.apple.keylayout.Swedish-Pro", type: .keyboardLayout)
     let entry = EnabledSourceEntry(swedishPro, layoutName: "Swedish - Pro", layoutNumber: 7)
@@ -19,7 +19,7 @@ import Testing
     #expect(EnabledSourceEntry(swedishPro, layoutName: nil, layoutNumber: 7) == nil)
 }
 
-// [spec:tis:req:session.prefs-fallback+1/test]
+// [spec:tis:req:session.prefs-fallback+2/test]
 @Test func entriesForOtherKindsUseBundleAndMode() {
     let mode = InputSource(
         type: .inputMode,
@@ -50,7 +50,7 @@ import Testing
     )
 }
 
-// [spec:tis:req:session.prefs-fallback+1/test]
+// [spec:tis:req:session.prefs-fallback+2/test]
 @Test func applyingAnEntryAddsOrRemovesItOnce() {
     let irish = EnabledSourceEntry(kind: .keyboardLayout, layoutID: 50, layoutName: "Irish")
     let palette = EnabledSourceEntry(
@@ -69,7 +69,7 @@ import Testing
     )
 }
 
-// [spec:tis:req:session.prefs-fallback+1/test]
+// [spec:tis:req:session.prefs-fallback+2/test]
 @Test @MainActor func builtEntriesMatchTheEnabledAppleLayouts() throws {
     let system = SystemInputSources()
     let recorded = UserPreferencesStore().entries(for: UserAccount.effective.name)
@@ -87,12 +87,14 @@ import Testing
 
 /// An absolute path as the domain keeps the test's preferences out of
 /// ~/Library/Preferences.
-// [spec:tis:req:session.prefs-fallback+1/test]
-@Test func preferencesStoreRoundTripsThroughCFPreferences() throws {
+// [spec:tis:req:session.prefs-fallback+2/test]
+@Test(arguments: [false, true])
+func preferencesStoreRoundTripsThroughCFPreferences(thirdParty: Bool) throws {
     let file = FileManager.default.temporaryDirectory.appending(
         path: "tisutil-\(UUID().uuidString)")
     defer { try? FileManager.default.removeItem(at: file.appendingPathExtension("plist")) }
-    let store = UserPreferencesStore(domain: file.path, key: "Entries")
+    let preferences = thirdParty ? UserPreferencesStore.thirdParty : UserPreferencesStore()
+    let store = UserPreferencesStore(domain: file.path, key: preferences.key)
     let user = UserAccount.effective.name
     let entry = EnabledSourceEntry(kind: .keyboardLayout, layoutID: 50, layoutName: "Irish")
 

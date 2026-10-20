@@ -1,7 +1,7 @@
 import Foundation
 
-/// One entry of `AppleEnabledInputSources` in `com.apple.HIToolbox`, the list
-/// macOS reads at login to decide which of its own input sources are enabled.
+/// One entry of the system or third-party enabled-source preferences that
+/// macOS reads at login.
 public struct EnabledSourceEntry: Equatable, Sendable {
     public enum Kind: String, Sendable {
         case keyboardLayout = "Keyboard Layout"
@@ -37,7 +37,7 @@ public struct EnabledSourceEntry: Equatable, Sendable {
     }
 
     /// `nil` when the source lacks a field its kind of entry needs.
-    // [spec:tis:req:session.prefs-fallback+1]
+    // [spec:tis:req:session.prefs-fallback+2]
     public init?(_ source: InputSource, layoutName: String?, layoutNumber: Int?) {
         switch source.type {
         case .keyboardLayout?:
@@ -81,7 +81,7 @@ public struct EnabledSourceEntry: Equatable, Sendable {
 
     /// `entries` with this entry added (`enable`) or removed. An entry that is
     /// already there is left in place, so the list keeps its order.
-    // [spec:tis:req:session.prefs-fallback+1]
+    // [spec:tis:req:session.prefs-fallback+2]
     public func applied(to entries: [[String: Any]], enable: Bool) -> [[String: Any]] {
         let isThis = { (entry: [String: Any]) in EnabledSourceEntry(dictionary: entry) == self }
         if enable {
@@ -113,7 +113,7 @@ public protocol EnabledSourcesStore {
 /// Reads and writes another user's preferences through cfprefsd, which needs
 /// root. Editing the plist file directly would be overwritten from cfprefsd's
 /// cache.
-// [spec:tis:req:session.prefs-fallback+1]
+// [spec:tis:req:session.prefs-fallback+2]
 public struct UserPreferencesStore: EnabledSourcesStore {
     public var domain: String
     public var key: String
@@ -121,6 +121,10 @@ public struct UserPreferencesStore: EnabledSourcesStore {
     public init(domain: String = "com.apple.HIToolbox", key: String = "AppleEnabledInputSources") {
         self.domain = domain
         self.key = key
+    }
+
+    public static var thirdParty: Self {
+        Self(domain: "com.apple.inputsources", key: "AppleEnabledThirdPartyInputSources")
     }
 
     public func entries(for user: String) -> [[String: Any]] {

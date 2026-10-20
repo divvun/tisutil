@@ -39,7 +39,7 @@ private func parse(_ arguments: [String]) throws -> any StateCommand {
     #expect(sources.changeRequests == [.init(.enable, layoutID)])
 }
 
-// [spec:tis:req:mutate.force-enable+1/test]
+// [spec:tis:req:mutate.force-enable+2/test]
 @Test @MainActor func forceEnableCommandPrintsTheEnabledSource() throws {
     let sources = fixture()
     let output = try parse(["enable", "--force", "--json", layoutID]).execute(provider: sources)
@@ -51,7 +51,7 @@ private func parse(_ arguments: [String]) throws -> any StateCommand {
     #expect(sources.changeRequests == [.init(.forceEnable, layoutID)])
 }
 
-// [spec:tis:req:mutate.force-enable+1/test]
+// [spec:tis:req:mutate.force-enable+2/test]
 @Test @MainActor func selectWithForceEnablesBeforeSelecting() throws {
     let sources = fixture()
     _ = try parse(["select", "--enable", "--force", layoutID]).execute(provider: sources)
@@ -59,7 +59,7 @@ private func parse(_ arguments: [String]) throws -> any StateCommand {
     #expect(sources.changeRequests == [.init(.forceEnable, layoutID), .init(.select, layoutID)])
 }
 
-// [spec:tis:req:mutate.force-enable+1/test]
+// [spec:tis:req:mutate.force-enable+2/test]
 @Test(arguments: [
     ["select", "--force", layoutID], ["disable", "--force", layoutID],
     ["deselect", "--force", layoutID], ["register", "--force", "/tmp/test.keylayout"],
@@ -74,7 +74,7 @@ func forceRequiresACommandThatEnables(_ arguments: [String]) {
     }
 }
 
-// [spec:tis:req:mutate.force-enable+1/test]
+// [spec:tis:req:mutate.force-enable+2/test]
 @Test @MainActor func unappliedForceEnableExitsWithFailure() throws {
     let sources = fixture()
     sources.appliesChanges = false

@@ -167,7 +167,7 @@ extension InputSourceProvider {
     /// Enables every enable-capable source in `sources` and, with `select`,
     /// selects the first select-capable one; returns the sources afterwards.
     // [spec:tis:req:install.enable]
-    // [spec:tis:req:mutate.force-enable+1]
+    // [spec:tis:req:mutate.force-enable+2]
     public func activate(
         _ sources: [InputSource],
         enable: Bool,

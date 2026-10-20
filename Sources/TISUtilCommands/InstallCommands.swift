@@ -16,7 +16,7 @@ struct ActivationOptions: ParsableArguments {
             + (enablement.force ? ["--force"] : [])
     }
 
-    // [spec:tis:req:mutate.force-enable+1]
+    // [spec:tis:req:mutate.force-enable+2]
     func validate() throws {
         if enablement.force && !enable && !select {
             throw ValidationError("--force requires --enable or --select.")

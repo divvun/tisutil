@@ -29,7 +29,7 @@ import Testing
     #expect(ExitStatus(for: InstallError.nothingRegistered(path: "/x")) == .failure)
 }
 
-// [spec:tis:req:mutate.force-enable+1/test]
+// [spec:tis:req:mutate.force-enable+2/test]
 @Test(arguments: ["--enable", "--select"]) @MainActor
 func registerCanForceItsActivation(_ activation: String) throws {
     let file = FileManager.default.temporaryDirectory.appending(
