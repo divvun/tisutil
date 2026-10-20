@@ -5,56 +5,114 @@ import TISKit
 struct DictationCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "dictation",
-        abstract: "Report on macOS dictation.",
-        subcommands: [DictationStatusCommand.self, DictationLanguagesCommand.self]
+        abstract: "Report on and change macOS dictation.",
+        subcommands: [
+            DictationStatusCommand.self, DictationLanguagesCommand.self,
+            DictationAutoEnableCommand.self,
+        ]
     )
 }
 
-// [spec:tis:req:dictation.status]
-struct DictationStatusCommand: InputSourceCommand {
+/// A dictation command, run against the current user's dictation settings.
+protocol DictationSettingsCommand: InputSourceCommand {
+    @MainActor
+    func execute(provider: some InputSourceProvider, settings: some DictationSettings) throws
+        -> CommandOutput
+}
+
+extension DictationSettingsCommand {
+    @MainActor
+    func execute(provider: some InputSourceProvider) throws -> CommandOutput {
+        try execute(provider: provider, settings: SystemDictationSettings())
+    }
+}
+
+// [spec:tis:req:dictation.status+1]
+func dictationReport(_ status: DictationStatus, json: Bool) throws -> String {
+    if json {
+        return try jsonDocument(DictationStatusJSON(status: status))
+    }
+    let onOff = { (value: Bool?) in value.map { $0 ? "on" : "off" } ?? "unknown" }
+    let source =
+        status.source.map { source in
+            [
+                source.isEnabled == true ? "enabled" : "disabled",
+                source.isSelected == true ? "selected" : "not selected",
+            ].joined(separator: ", ")
+        } ?? "not installed"
+    return [
+        "Dictation:     \(onOff(status.isEnabled))",
+        "Language:      \(status.language ?? "unknown")",
+        "Input source:  \(source)",
+        "Auto-enable:   \(onOff(status.autoEnable))",
+    ].joined(separator: "\n")
+}
+
+// [spec:tis:req:dictation.status+1]
+struct DictationStatusCommand: DictationSettingsCommand {
     static let configuration = CommandConfiguration(
         commandName: "status",
-        abstract: "Show whether dictation is enabled and selected, and whether it auto-enables."
+        abstract: "Show whether dictation is on, its language, and its input source."
     )
 
     @OptionGroup var output: OutputOptions
     @OptionGroup var session: SessionOptions
 
     @MainActor
-    func execute(provider: some InputSourceProvider) throws -> CommandOutput {
-        let status = try provider.dictationStatus(autoEnable: Dictation.autoEnable())
-        return CommandOutput(stdout: try report(status))
-    }
-
-    func report(_ status: DictationStatus) throws -> String {
-        if output.json {
-            return try jsonDocument(DictationStatusJSON(status: status))
-        }
-        let state =
-            status.source.map { source in
-                [
-                    source.isEnabled == true ? "enabled" : "disabled",
-                    source.isSelected == true ? "selected" : "not selected",
-                ].joined(separator: ", ")
-            } ?? "not installed"
-        let autoEnable = status.autoEnable.map { $0 ? "on" : "off" } ?? "unknown"
-        return "Dictation:    \(state)\nAuto-enable:  \(autoEnable)"
+    func execute(provider: some InputSourceProvider, settings: some DictationSettings) throws
+        -> CommandOutput
+    {
+        let status = try provider.dictationStatus(settings: settings)
+        return CommandOutput(stdout: try dictationReport(status, json: output.json))
     }
 }
 
-// [spec:tis:req:dictation.status]
+// [spec:tis:req:dictation.status+1]
 struct DictationStatusJSON: Encodable {
     var status: DictationStatus
 
     enum CodingKeys: String, CodingKey {
-        case installed, source, autoEnable
+        case enabled, language, installed, source, autoEnable
     }
 
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(status.isEnabled, forKey: .enabled)
+        try container.encode(status.language, forKey: .language)
         try container.encode(status.source != nil, forKey: .installed)
         try container.encode(status.source.map(InputSourceJSON.init), forKey: .source)
         try container.encode(status.autoEnable, forKey: .autoEnable)
+    }
+}
+
+enum OnOff: String, ExpressibleByArgument, CaseIterable {
+    case on, off
+}
+
+// [spec:tis:req:dictation.auto-enable]
+struct DictationAutoEnableCommand: DictationSettingsCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "auto-enable",
+        abstract: "Print or set whether dictation auto-enables."
+    )
+
+    @OptionGroup var output: OutputOptions
+    @OptionGroup var session: SessionOptions
+
+    @Argument(help: "on or off. Without it, the current setting is printed.")
+    var state: OnOff?
+
+    @MainActor
+    func execute(provider: some InputSourceProvider, settings: some DictationSettings) throws
+        -> CommandOutput
+    {
+        if let state {
+            try settings.changeAutoEnable(to: state == .on)
+        }
+        let on = try settings.autoEnable()
+        return CommandOutput(
+            stdout: output.json ? try jsonDocument(["autoEnable": on]) : (on ? "on" : "off")
+        )
     }
 }
 

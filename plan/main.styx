@@ -430,9 +430,27 @@ children (
 
             {
                 id dictation.toggle
-                title "dictation enable/disable and auto-enable on/off"
+                title "dictation auto-enable on/off"
                 priority 3
+                implements {
+                    swift ([spec:tis:req:dictation.auto-enable])
+                }
                 deps (dictation.investigate mutate.state)
+                log (
+                    {
+                        at 2026-10-20T13:31:03.82864Z
+                        author "brendan@necessary.nu"
+                        kind @status
+                        text "Todo → Doing (nplan start)"
+                    }
+
+                    {
+                        at 2026-10-20T13:45:52.026088Z
+                        author "brendan@necessary.nu"
+                        kind @decision
+                        text "Dropped dictation enable/disable (operator decision). Live test showed assistantd rejects AFPreferences setDictationIsEnabled: from any process lacking the private entitlement com.apple.private.assistant.settings, and writing Dictation Enabled directly would bypass assistantd. The node now delivers auto-enable only; status reports dictation's on/off read-only."
+                    }
+                )
             }
         )
     }

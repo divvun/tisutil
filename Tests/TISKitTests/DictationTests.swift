@@ -24,40 +24,69 @@ import Testing
     )
 }
 
-// [spec:tis:req:dictation.status/test]
-@Test @MainActor func statusReportsTheDictationSourceIfInstalled() throws {
-    let dictation = InputSource(
-        id: Dictation.sourceID,
-        category: .palette,
-        type: .characterPalette,
-        isEnabled: false,
-        isSelected: false
-    )
+private let dictationSource = InputSource(
+    id: Dictation.sourceID,
+    category: .palette,
+    type: .characterPalette,
+    isEnabled: false,
+    isSelected: false
+)
 
-    let installed = FixedInputSources(installed: [dictation])
-    #expect(
-        try installed.dictationStatus(autoEnable: true)
-            == DictationStatus(source: dictation, autoEnable: true)
-    )
+// [spec:tis:req:dictation.status+1/test]
+@Test @MainActor func statusReportsDictationAndItsInputSource() throws {
+    let settings = FixedDictationSettings(enabled: true, autoEnable: true, language: "en_AU")
 
-    let missing = FixedInputSources(installed: [])
     #expect(
-        try missing.dictationStatus(autoEnable: nil)
-            == DictationStatus(source: nil, autoEnable: nil)
+        try FixedInputSources(installed: [dictationSource]).dictationStatus(settings: settings)
+            == DictationStatus(
+                isEnabled: true,
+                language: "en_AU",
+                source: dictationSource,
+                autoEnable: true
+            )
     )
 }
 
-// [spec:tis:req:dictation.status/test]
-@Test @MainActor func autoEnableIsUnknownWithoutTheFunction() {
+// [spec:tis:req:dictation.status+1/test]
+@Test @MainActor func statusReportsWhatCannotBeReadAsUnknown() throws {
+    let unavailable = FixedDictationSettings(enabled: nil, autoEnable: nil)
+
+    #expect(
+        try FixedInputSources(installed: []).dictationStatus(settings: unavailable)
+            == DictationStatus(source: nil, autoEnable: nil)
+    )
     #expect(Dictation.autoEnable(symbol: nil) == nil)
-    #expect(Dictation.autoEnable() != nil)
+}
+
+// [spec:tis:req:dictation.status+1/test]
+@Test @MainActor func systemDictationSettingsAreReadable() throws {
+    let settings = SystemDictationSettings()
+    _ = try settings.isEnabled()
+    _ = try settings.autoEnable()
 }
 
 // [spec:tis:def:dictation.source/test]
 @Test @MainActor func dictationIsAPaletteInputSource() throws {
-    let status = try SystemInputSources().dictationStatus(autoEnable: nil)
+    let status = try SystemInputSources().dictationStatus(
+        settings: FixedDictationSettings(enabled: nil, autoEnable: nil))
     if let source = status.source {
         #expect(source.category == .palette)
         #expect(source.id == Dictation.sourceID)
+    }
+}
+
+// [spec:tis:req:dictation.auto-enable/test]
+@Test @MainActor func autoEnableIsSetAndCheckedOnce() throws {
+    let settings = FixedDictationSettings(enabled: false, autoEnable: true)
+    try settings.changeAutoEnable(to: false)
+    #expect(try !settings.autoEnable())
+
+    let stuck = FixedDictationSettings(enabled: false, autoEnable: true)
+    stuck.appliesChanges = false
+    #expect(throws: DictationError.notApplied("auto-enable", expected: false)) {
+        try stuck.changeAutoEnable(to: false)
+    }
+    #expect(throws: DictationError.unavailable("TISSetDictationShouldAutoEnable")) {
+        try FixedDictationSettings(enabled: false, autoEnable: nil).changeAutoEnable(to: true)
     }
 }

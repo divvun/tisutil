@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import TISKitTestSupport
 import Testing
 
 @testable import TISKit
@@ -18,27 +19,41 @@ private func command<C: ParsableCommand>(_ type: C.Type, _ arguments: [String]) 
     try #require(try TISUtil.parseAsRoot(["dictation"] + arguments) as? C)
 }
 
-// [spec:tis:req:dictation.status/test]
+// [spec:tis:req:dictation.status+1/test]
 @Test func statusSaysWhetherDictationIsOn() throws {
-    let human = try command(DictationStatusCommand.self, ["status"])
     #expect(
-        try human.report(DictationStatus(source: dictation, autoEnable: false))
-            == "Dictation:    enabled, not selected\nAuto-enable:  off"
+        try dictationReport(
+            DictationStatus(
+                isEnabled: true, language: "en_AU", source: dictation, autoEnable: false),
+            json: false
+        ) == """
+            Dictation:     on
+            Language:      en_AU
+            Input source:  enabled, not selected
+            Auto-enable:   off
+            """
     )
     #expect(
-        try human.report(DictationStatus(source: nil, autoEnable: nil))
-            == "Dictation:    not installed\nAuto-enable:  unknown"
+        try dictationReport(DictationStatus(source: nil, autoEnable: nil), json: false) == """
+            Dictation:     unknown
+            Language:      unknown
+            Input source:  not installed
+            Auto-enable:   unknown
+            """
     )
 }
 
-// [spec:tis:req:dictation.status/test]
+// [spec:tis:req:dictation.status+1/test]
 @Test func statusJSONIsOneObject() throws {
-    let json = try command(DictationStatusCommand.self, ["status", "--json"])
-    let object = try #require(
-        try JSONSerialization.jsonObject(
-            with: Data(json.report(DictationStatus(source: nil, autoEnable: true)).utf8)
-        ) as? [String: Any]
+    let json = try dictationReport(
+        DictationStatus(isEnabled: false, language: nil, source: nil, autoEnable: true),
+        json: true
     )
+    let object = try #require(
+        try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any]
+    )
+    #expect(object["enabled"] as? Bool == false)
+    #expect(object["language"] is NSNull)
     #expect(object["installed"] as? Bool == false)
     #expect(object["source"] is NSNull)
     #expect(object["autoEnable"] as? Bool == true)
@@ -64,4 +79,24 @@ private func command<C: ParsableCommand>(_ type: C.Type, _ arguments: [String]) 
         try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [[String: Any]])
     #expect(array.map { $0["locale"] as? String } == ["en-AU", "se-NO"])
     #expect(array[0]["installed"] as? Bool == true)
+}
+
+// [spec:tis:req:dictation.auto-enable/test]
+@Test @MainActor func autoEnablePrintsOrSetsTheSetting() throws {
+    let settings = FixedDictationSettings(enabled: false, autoEnable: true)
+    let sources = FixedInputSources(installed: [])
+
+    #expect(
+        try command(DictationAutoEnableCommand.self, ["auto-enable"])
+            .execute(provider: sources, settings: settings).stdout == "on"
+    )
+    let off = try command(DictationAutoEnableCommand.self, ["auto-enable", "off", "--json"])
+        .execute(provider: sources, settings: settings)
+    #expect(
+        try JSONSerialization.jsonObject(with: Data(off.stdout.utf8)) as? [String: Bool] == [
+            "autoEnable": false
+        ])
+    #expect(throws: (any Error).self) {
+        try TISUtil.parseAsRoot(["dictation", "auto-enable", "maybe"])
+    }
 }

@@ -75,10 +75,6 @@ impl_evidence (
         {impl_name swift, rule dictation.languages}
         {impl_name swift, rule dictation.source}
         {impl_name swift, rule dictation.status}
-    ), rule_versions_seen (
-        {id dictation.languages, version 0}
-        {id dictation.source, version 0}
-        {id dictation.status, version 0}
     )}
     {id install.place, covered_rules (
         install.enable
@@ -201,6 +197,11 @@ impl_evidence (
     ), rule_versions_seen (
         {id watch.json-lines, version 0}
         {id watch.stream, version 0}
+    )}
+    {id dictation.toggle, covered_rules (
+        dictation.auto-enable
+    ), covered_claims (
+        {impl_name swift, rule dictation.auto-enable}
     )}
 )
 

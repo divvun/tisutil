@@ -93,6 +93,18 @@ answer. Apple's own input sources are enabled immediately.
 `register --enable` or `--select`, and `install --enable` or `--select`.
 The command still checks that the source became enabled.
 
+### Dictation
+
+```sh
+tisutil dictation status        # on/off, language, input source, auto-enable
+tisutil dictation languages     # locales and whether their on-device models are installed
+tisutil dictation auto-enable on
+```
+
+`tisutil` can report whether dictation is on, but cannot turn it on or off:
+macOS accepts that change only from its own entitled processes, such as
+System Settings.
+
 ### Input source IDs
 
 A keyboard layout in a bundle has two IDs: the one its `Info.plist` declares

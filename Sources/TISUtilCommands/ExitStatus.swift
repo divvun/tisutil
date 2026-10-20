@@ -53,6 +53,11 @@ extension TISError: DiagnosedError {
 }
 
 // [spec:tis:req:cli.exit-codes]
+extension DictationError: DiagnosedError {
+    var exitStatus: ExitStatus { .failure }
+}
+
+// [spec:tis:req:cli.exit-codes]
 extension InstallError: DiagnosedError {
     var exitStatus: ExitStatus {
         switch self {
